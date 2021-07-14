@@ -3,10 +3,11 @@ package com.example.mom;
 public class DefineVars {
     /*
         ================== Doc ==================
-        https://material.io/components/text-fields/android#using-text-fields
+        Material Design             : https://material.io/components/text-fields/android#using-text-fields
+        Login with phone number     : https://firebase.google.com/docs/auth/android/phone-auth
 
         ================== Note =================
-        Signout Fbase: FirebaseAuth.getInstance().signOut();
+        Signout Fbase               : FirebaseAuth.getInstance().signOut();
     */
 
     public static final int LOADING_TIME    = 5000; //ms
