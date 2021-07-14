@@ -26,31 +26,26 @@ public class LoadingActivity extends AppCompatActivity {
         binding.loadingLogo.startAnimation(blink);
 
         //Check user login yet?
-        checkLoginState();
+        new checkLoginState().start();
     }
 
-    private void checkLoginState() {
+    private class checkLoginState extends Thread {
         FirebaseUser auth = getInstance().getCurrentUser();
         //Start new thread to check login state
-        try {
-            Thread.sleep(DefineVars.LOADING_TIME);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        @Override
+        public void run() {
+            super.run();
+            try {
+                Thread.sleep(DefineVars.LOADING_TIME);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (auth == null) {
+                startActivity(new Intent(LoadingActivity.this, LoginActivity.class));
+            } else {
+                startActivity(new Intent(LoadingActivity.this, MainActivity.class));
+            }
+            finish();
         }
-        if (auth == null) {
-            startActivity(new Intent(LoadingActivity.this, LoginActivity.class));
-        } else {
-            startActivity(new Intent(LoadingActivity.this, MainActivity.class));
-        }
-        finish();
-
-
-        /*
-        ====== Doc ====
-        https://material.io/components/text-fields/android#using-text-fields
-
-        ====== Note =====
-        Signout Fbase: FirebaseAuth.getInstance().signOut();
-        */
     }
 }

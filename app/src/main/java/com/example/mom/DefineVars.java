@@ -1,5 +1,13 @@
 package com.example.mom;
 
 public class DefineVars {
-    public static final int LOADING_TIME = 3000; //ms
+    /*
+        ================== Doc ==================
+        https://material.io/components/text-fields/android#using-text-fields
+
+        ================== Note =================
+        Signout Fbase: FirebaseAuth.getInstance().signOut();
+    */
+
+    public static final int LOADING_TIME = 5000; //ms
 }

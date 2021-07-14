@@ -16,6 +16,10 @@
             android:id="@+id/loading_logo"
             android:src="@drawable/loading"
             android:layout_width="300dp"
-            android:layout_height="300dp"/>
+            android:layout_height="130dp"/>
+        <ImageView
+            android:layout_width="230dp"
+            android:layout_height="80dp"
+            android:src="@drawable/desc"/>
     </LinearLayout>
 </layout>

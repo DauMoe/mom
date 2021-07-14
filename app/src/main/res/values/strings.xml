@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MoM</string>
+    <string name="email_err">Enter an email!</string>
 </resources>
