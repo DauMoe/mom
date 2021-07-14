@@ -13,7 +13,9 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.example.mom.MainActivity;
 import com.example.mom.R;
 import com.example.mom.databinding.ActivityLoginBinding;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -108,6 +110,7 @@ public class AccLoginActivity extends AppCompatActivity {
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w("GOOGLE LOGIN", "Google sign in failed", e);
+                Toast.makeText(getApplicationContext(), "Google login is failed!", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -123,10 +126,12 @@ public class AccLoginActivity extends AppCompatActivity {
                         Log.d("GOOGLE LOGIN", "signInWithCredential:success");
                         FirebaseUser user = auth.getCurrentUser();
                         //Start intent here
+                        StartMainScreen();
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w("GOOGLE LOGIN", "signInWithCredential:failure", task.getException());
                         //Start intent here
+                        Toast.makeText(getApplicationContext(), "Sign in with credential failed!", Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -136,13 +141,15 @@ public class AccLoginActivity extends AppCompatActivity {
     private void LoginWithAccount() {
         isError = false;
         //Validation input fields
-        if (email.getEditText().getText().toString().isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email.getEditText().getText()).matches()) {
+        String email_txt = email.getEditText().getText().toString();
+        String pass_txt  = password.getEditText().getText().toString();
+        if (email_txt.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email_txt).matches()) {
             isError = true;
             email.setError(getString(R.string.email_err));
         } else {
             email.setError(null);
         }
-        if (password.getEditText().getText().toString().isEmpty() || password.getEditText().getText().length() < 6) {
+        if (pass_txt.isEmpty() || pass_txt.length() < 6) {
             isError = true;
             password.setError(getString(R.string.pass_err));
         } else {
@@ -150,5 +157,21 @@ public class AccLoginActivity extends AppCompatActivity {
         }
         if (isError) return;
         //Start login here
+        auth.signInWithEmailAndPassword(email_txt, pass_txt).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    StartMainScreen();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Login failed!", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void StartMainScreen() {
+        //if login successful will go to here
+        startActivity(new Intent(AccLoginActivity.this, MainActivity.class));
+        finish();
     }
 }
