@@ -10,6 +10,6 @@ public class DefineVars {
         Signout Fbase               : FirebaseAuth.getInstance().signOut();
     */
 
-    public static final int LOADING_TIME    = 5000; //ms
-    public static final int RC_SIGN_IN      = 123;
+    public static final int LOADING_TIME    = 5000;     //ms
+    public static final int RC_SIGN_IN      = 123;      //random code
 }
