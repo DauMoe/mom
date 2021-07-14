@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import com.example.mom.Login.AccLoginActivity;
 import com.example.mom.databinding.ActivityLoadingBinding;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -21,10 +22,13 @@ public class LoadingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding            = DataBindingUtil.setContentView(this, R.layout.activity_loading);
         Animation blink    = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.blink);
-
         //Start blink logo
         binding.loadingLogo.startAnimation(blink);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         //Check user login yet?
         new checkLoginState().start();
     }
@@ -41,7 +45,7 @@ public class LoadingActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             if (auth == null) {
-                startActivity(new Intent(LoadingActivity.this, LoginActivity.class));
+                startActivity(new Intent(LoadingActivity.this, AccLoginActivity.class));
             } else {
                 startActivity(new Intent(LoadingActivity.this, MainActivity.class));
             }

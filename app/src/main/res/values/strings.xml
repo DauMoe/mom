@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">MoM</string>
+
+    <!--    Login string-->
     <string name="email_err">Enter an email!</string>
+    <string name="pass_err">Must be 6 characters!</string>
+
 </resources>
