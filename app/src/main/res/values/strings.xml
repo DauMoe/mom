@@ -3,6 +3,6 @@
 
     <!--    Login string-->
     <string name="email_err">Enter an email!</string>
-    <string name="pass_err">Must be 6 characters!</string>
-
+    <string name="pass_err">At least 6 characters!</string>
+    <string name="phone_err">Invalid phone number!</string>
 </resources>
