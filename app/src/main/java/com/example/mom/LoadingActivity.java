@@ -22,34 +22,27 @@ public class LoadingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding            = DataBindingUtil.setContentView(this, R.layout.activity_loading);
         Animation blink    = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.blink);
+
         //Start blink logo
         binding.loadingLogo.startAnimation(blink);
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
         //Check user login yet?
-        new checkLoginState().start();
+        checkLoginState();
     }
 
-    private class checkLoginState extends Thread {
+    private void checkLoginState() {
         FirebaseUser auth = getInstance().getCurrentUser();
         //Start new thread to check login state
-        @Override
-        public void run() {
-            super.run();
-            try {
-                Thread.sleep(DefineVars.LOADING_TIME);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (auth == null) {
-                startActivity(new Intent(LoadingActivity.this, AccLoginActivity.class));
-            } else {
-                startActivity(new Intent(LoadingActivity.this, MainActivity.class));
-            }
-            finish();
+        try {
+            Thread.sleep(DefineVars.LOADING_TIME);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        if (auth == null) {
+            startActivity(new Intent(LoadingActivity.this, AccLoginActivity.class));
+        } else {
+            startActivity(new Intent(LoadingActivity.this, MainActivity.class));
+        }
+        finish();
     }
 }

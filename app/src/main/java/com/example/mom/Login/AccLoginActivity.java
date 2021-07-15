@@ -13,6 +13,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.mom.MainActivity;
@@ -37,6 +38,7 @@ import static com.example.mom.DefineVars.RC_SIGN_IN;
 
 public class AccLoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
+    private LinearLayout acclogin;
     private TextInputLayout email, password;
     private AppCompatButton login_btn;
     private ImageView google, phone;
@@ -56,6 +58,7 @@ public class AccLoginActivity extends AppCompatActivity {
                         .requestEmail()
                         .build();
         gsoClient   = GoogleSignIn.getClient(this, gso);
+        acclogin    = binding.acclogin;
         email       = binding.loginEmail;
         password    = binding.loginPass;
         login_btn   = binding.loginBtn;
@@ -91,6 +94,7 @@ public class AccLoginActivity extends AppCompatActivity {
     }
 
     private void LoginWithGoogleClient() {
+        acclogin.setVisibility(View.GONE);
         Intent signInIntent = gsoClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -111,6 +115,7 @@ public class AccLoginActivity extends AppCompatActivity {
                 // Google Sign In failed, update UI appropriately
                 Log.w("GOOGLE LOGIN", "Google sign in failed", e);
                 Toast.makeText(getApplicationContext(), "Google login is failed!", Toast.LENGTH_LONG).show();
+                acclogin.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -130,8 +135,8 @@ public class AccLoginActivity extends AppCompatActivity {
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w("GOOGLE LOGIN", "signInWithCredential:failure", task.getException());
-                        //Start intent here
                         Toast.makeText(getApplicationContext(), "Sign in with credential failed!", Toast.LENGTH_LONG).show();
+                        acclogin.setVisibility(View.VISIBLE);
                     }
                 }
             });
