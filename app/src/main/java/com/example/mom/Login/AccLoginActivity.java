@@ -94,7 +94,6 @@ public class AccLoginActivity extends AppCompatActivity {
     }
 
     private void LoginWithGoogleClient() {
-        acclogin.setVisibility(View.GONE);
         Intent signInIntent = gsoClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -105,6 +104,7 @@ public class AccLoginActivity extends AppCompatActivity {
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
+            acclogin.setVisibility(View.GONE);
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
