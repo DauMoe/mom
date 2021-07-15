@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt"
-    android:viewportWidth="3022"
+    android:viewportWidth="3001"
     android:viewportHeight="5000"
-    android:width="3022dp"
+    android:width="3001dp"
     android:height="5000dp">
     <path
-        android:pathData="M12 0H3012V5000H12V0Z">
+        android:pathData="M1 0H3001V5000H1V0Z">
         <aapt:attr
             name="android:fillColor">
             <gradient
-                android:startX="11.9999"
+                android:startX="0.999948"
                 android:startY="-487"
-                android:endX="2682"
+                android:endX="2671"
                 android:endY="4525"
                 android:tileMode="clamp">
                 <item
-                    android:color="#00870A9B"
+                    android:color="#3DEC09BA"
                     android:offset="0" />
                 <item
-                    android:color="#9EF319EF"
+                    android:color="#BE3DD2"
                     android:offset="0" />
                 <item
-                    android:color="#DF5448D5"
+                    android:color="#AA553AC0"
                     android:offset="0.61268" />
                 <item
                     android:color="#5C54B6"
@@ -30,15 +30,15 @@
         </aapt:attr>
     </path>
     <path
-        android:pathData="M2991 181C2497.25 1479 511.252 2384.5 17 4000"
+        android:pathData="M2998 50C2500.76 1477.83 500.742 2473.91 3 4251"
         android:strokeColor="#DAD8D8"
         android:strokeWidth="5" />
     <path
-        android:pathData="M18 4865.5C466.5 3576.5 1745.5 2633.5 3006 2391"
+        android:pathData="M3 4865C453.001 3576.26 1735.78 2633.45 3000.5 2391"
         android:strokeColor="#DAD8D8"
         android:strokeWidth="4" />
     <path
-        android:pathData="M3012 5000V4000C2332.53 4000 2012 4566.35 2012 5000H3012Z"
+        android:pathData="M3001 5000V4000C2321.53 4000 2001 4566.35 2001 5000H3001Z"
         android:fillColor="#4838AA"
         android:fillAlpha="0.57" />
 </vector>
