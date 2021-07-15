@@ -1,23 +1,29 @@
 package com.example.mom.Login;
 
+import android.os.Bundle;
+import android.view.View;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.databinding.DataBindingUtil;
 
-import android.os.Bundle;
-import android.view.View;
-
+import com.example.mom.DefineVars;
 import com.example.mom.R;
 import com.example.mom.databinding.ActivityPhoneLoginBinding;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthOptions;
+import com.google.firebase.auth.PhoneAuthProvider;
 
-import java.util.regex.Matcher;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class PhoneLoginActivity extends AppCompatActivity {
     private ActivityPhoneLoginBinding binding;
     private TextInputLayout phoneNum;
     private AppCompatButton sendOTP;
+    protected PhoneAuthOptions options;
+    protected FirebaseAuth auth = FirebaseAuth.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,14 @@ public class PhoneLoginActivity extends AppCompatActivity {
                     return;
                 } else {
                     phoneNum.setError(null);
+                    options = PhoneAuthOptions
+                                .newBuilder(auth)
+                                .setPhoneNumber(phone_number)
+                                .setTimeout(DefineVars.TIMEOUT, TimeUnit.SECONDS)
+                                .setActivity(PhoneLoginActivity.this)
+//                                .setCallbacks(ChangeIntent)
+                                .build();
+                    PhoneAuthProvider.verifyPhoneNumber(options);
                 }
 
             }
