@@ -1,6 +1,7 @@
 package com.example.mom.Login;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
@@ -15,6 +16,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.databinding.DataBindingUtil;
 
 import com.example.mom.DefineVars;
+import com.example.mom.MainActivity;
 import com.example.mom.R;
 import com.example.mom.databinding.ActivityPhoneLoginBinding;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -75,7 +77,7 @@ public class PhoneLoginActivity extends AppCompatActivity {
 
             @Override
             public void onVerificationFailed(@NonNull FirebaseException e) {
-                Toast.makeText(getApplicationContext(), "Failed verify OTP!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Verify failed!", Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -131,9 +133,9 @@ public class PhoneLoginActivity extends AppCompatActivity {
                     otp.setError(getString(R.string.otp_err));
                     return;
                 } else {
+                    otp.setError(null);
                     progressDialog.setMessage("Verifying...");
                     progressDialog.show();
-                    otp.setError(null);
                     VerifyOTP(OTP);
                 }
             }
@@ -153,12 +155,15 @@ public class PhoneLoginActivity extends AppCompatActivity {
                     public void onSuccess(AuthResult authResult) {
                         String phone = auth.getCurrentUser().getPhoneNumber();
                         Log.i("RESULT: ", "Login success!");
+                        startActivity(new Intent(PhoneLoginActivity.this, MainActivity.class));
+                        finish();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.e("ERROR: ", "Login failed!");
+                        Toast.makeText(getApplicationContext(), "Login failed! Try again", Toast.LENGTH_LONG).show();
                     }
                 });
     }
