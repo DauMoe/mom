@@ -27,22 +27,26 @@ public class LoadingActivity extends AppCompatActivity {
         binding.loadingLogo.startAnimation(blink);
 
         //Check user login yet?
-        checkLoginState();
+        new checkLoginState().start();
     }
 
-    private void checkLoginState() {
-        FirebaseUser auth = getInstance().getCurrentUser();
-        //Start new thread to check login state
-        try {
-            Thread.sleep(DefineVars.LOADING_TIME);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    private class checkLoginState extends Thread {
+        @Override
+        public void run() {
+            super.run();
+            FirebaseUser auth = getInstance().getCurrentUser();
+            //Start new thread to check login state
+            try {
+                Thread.sleep(DefineVars.LOADING_TIME);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (auth == null) {
+                startActivity(new Intent(LoadingActivity.this, AccLoginActivity.class));
+            } else {
+                startActivity(new Intent(LoadingActivity.this, MainActivity.class));
+            }
+            finish();
         }
-        if (auth == null) {
-            startActivity(new Intent(LoadingActivity.this, AccLoginActivity.class));
-        } else {
-            startActivity(new Intent(LoadingActivity.this, MainActivity.class));
-        }
-        finish();
     }
 }

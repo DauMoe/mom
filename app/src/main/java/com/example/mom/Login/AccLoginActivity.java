@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.databinding.DataBindingUtil;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -42,6 +43,7 @@ public class AccLoginActivity extends AppCompatActivity {
     private TextInputLayout email, password;
     private AppCompatButton login_btn;
     private ImageView google, phone;
+    private ProgressDialog progressDialog;
     boolean isError = false;
     private FirebaseAuth auth;
     private GoogleSignInOptions gso;
@@ -50,20 +52,21 @@ public class AccLoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding     = DataBindingUtil.setContentView(this, R.layout.activity_login);
-        auth        = FirebaseAuth.getInstance();
-        gso         = new GoogleSignInOptions
-                        .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestIdToken(getString(R.string.default_web_client_id))
-                        .requestEmail()
-                        .build();
-        gsoClient   = GoogleSignIn.getClient(this, gso);
-        acclogin    = binding.acclogin;
-        email       = binding.loginEmail;
-        password    = binding.loginPass;
-        login_btn   = binding.loginBtn;
-        google      = binding.loginGoogle;
-        phone       = binding.loginPhone;
+        binding         = DataBindingUtil.setContentView(this, R.layout.activity_login);
+        auth            = FirebaseAuth.getInstance();
+        gso             = new GoogleSignInOptions
+                            .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                            .requestIdToken(getString(R.string.default_web_client_id))
+                            .requestEmail()
+                            .build();
+        gsoClient       = GoogleSignIn.getClient(this, gso);
+        acclogin        = binding.acclogin;
+        email           = binding.loginEmail;
+        password        = binding.loginPass;
+        login_btn       = binding.loginBtn;
+        google          = binding.loginGoogle;
+        phone           = binding.loginPhone;
+        progressDialog  = new ProgressDialog(this);
         email.setBoxStrokeColor(Color.parseColor("#FFFFFF"));
         password.setBoxStrokeColor(Color.parseColor("#FFFFFF"));
     }
@@ -88,7 +91,7 @@ public class AccLoginActivity extends AppCompatActivity {
         phone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                startActivity(new Intent(AccLoginActivity.this, PhoneLoginActivity.class));
             }
         });
     }
@@ -162,13 +165,16 @@ public class AccLoginActivity extends AppCompatActivity {
         }
         if (isError) return;
         //Start login here
+        progressDialog.setMessage("Waiting...");
+        progressDialog.show();
         auth.signInWithEmailAndPassword(email_txt, pass_txt).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
+                progressDialog.hide();
                 if (task.isSuccessful()) {
                     StartMainScreen();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Login failed!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Account is not existed!", Toast.LENGTH_LONG).show();
                 }
             }
         });
