@@ -1,18 +1,14 @@
 package com.example.mom;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.databinding.DataBindingUtil;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.mom.databinding.ActivityMainBinding;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -22,7 +18,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 public class MainActivity extends AppCompatActivity {
-    private ActivityMainBinding binding;
+    ActivityMainBinding binding;
     private FloatingActionButton scanQR;
     private MaterialToolbar sidebar_menu;
     private DrawerLayout sidebar;
@@ -42,41 +38,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        sidebar_menu.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sidebar.open();
+        sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
+
+        navagationview.setNavigationItemSelectedListener(item -> {
+            item.setChecked(true);
+            sidebar.close();
+            //Start intent
+            switch (item.getItemId()) {
+                case R.id.personal_history:
+                    break;
+                case R.id.group_history:
+                    break;
+                case R.id.manager_group:
+                    break;
             }
+            return true;
         });
 
-        navagationview.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                item.setChecked(true);
-                sidebar.close();
-                //Start intent
-                switch (item.getItemId()) {
-                    case R.id.personal_history:
-                        break;
-                    case R.id.group_history:
-                        break;
-                    case R.id.manager_group:
-                        break;
-                }
-                return true;
-            }
-        });
-
-        scanQR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
-                intentIntegrator.setPrompt("Tip: vol up/donw to turn on/off flash!");
-                intentIntegrator.setBeepEnabled(true);
-                intentIntegrator.setOrientationLocked(true);
-                intentIntegrator.setCaptureActivity(Capture.class);
-                intentIntegrator.initiateScan();
-            }
+        scanQR.setOnClickListener(v -> {
+            IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
+            intentIntegrator.setPrompt("Tip: vol up/donw to turn on/off flash!");
+            intentIntegrator.setBeepEnabled(true);
+            intentIntegrator.setOrientationLocked(true);
+            intentIntegrator.setCaptureActivity(Capture.class);
+            intentIntegrator.initiateScan();
         });
     }
 
