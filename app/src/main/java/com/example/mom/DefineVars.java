@@ -5,6 +5,8 @@ public class DefineVars {
         ================== Doc ==================
         Material Design             : https://material.io/components/text-fields/android#using-text-fields
         Login with phone number     : https://firebase.google.com/docs/auth/android/phone-auth
+        Tablayout MDC               : https://www.youtube.com/watch?v=eXK4VMI9XLI (MDC: Material Design Components)
+        Phone authen example        : https://www.youtube.com/watch?v=W8eGh6vKKR8
 
         ================== Note =================
         Signout Fbase               : FirebaseAuth.getInstance().signOut();
