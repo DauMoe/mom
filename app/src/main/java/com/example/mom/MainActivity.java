@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             Log.w("RESULT: ", intentResult.getContents());
             Toast.makeText(getApplicationContext(), intentResult.getContents(), Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(getApplicationContext(), "FAILED!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Cancel!", Toast.LENGTH_LONG).show();
         }
     }
 }
