@@ -1,5 +1,6 @@
 package com.example.mom;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -9,12 +10,14 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.example.mom.databinding.ActivityMainBinding;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -23,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton scanQR;
     private MaterialToolbar sidebar_menu;
     private DrawerLayout sidebar;
-    boolean isSideBarOpen = false;
+    private NavigationView navagationview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         scanQR          = binding.fabScanqr;
         sidebar_menu    = binding.sidebarMenu;
         sidebar         = binding.sidebar;
+        navagationview  = binding.navagationview;
     }
 
     @Override
@@ -41,14 +45,28 @@ public class MainActivity extends AppCompatActivity {
         sidebar_menu.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isSideBarOpen) {
-                    sidebar.close();
-                } else {
-                    sidebar.open();
-                }
-                isSideBarOpen = !isSideBarOpen;
+                sidebar.open();
             }
         });
+
+        navagationview.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                item.setChecked(true);
+                sidebar.close();
+                //Start intent
+                switch (item.getItemId()) {
+                    case R.id.personal_history:
+                        break;
+                    case R.id.group_history:
+                        break;
+                    case R.id.manager_group:
+                        break;
+                }
+                return true;
+            }
+        });
+
         scanQR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,11 +80,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //For QRCode Scan
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-
         if (intentResult.getContents() != null) {
             Log.w("RESULT: ", intentResult.getContents());
             Toast.makeText(getApplicationContext(), intentResult.getContents(), Toast.LENGTH_LONG).show();
