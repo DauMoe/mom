@@ -37,9 +37,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
-
         navagationview.setNavigationItemSelectedListener(item -> {
             item.setChecked(true);
             sidebar.close();
