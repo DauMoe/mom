@@ -79,15 +79,19 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/otp"
                 android:layout_marginTop="90dp"
-                android:hint="Enter OTP"
+                android:hint="@null"
                 app:boxBackgroundColor="#FAFAFA"
-                app:errorEnabled="false"
+                app:errorEnabled="true"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <com.google.android.material.textfield.TextInputEditText
+                    android:ellipsize="start"
+                    android:gravity="center_horizontal"
+                    android:inputType="numberDecimal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </com.google.android.material.textfield.TextInputLayout>

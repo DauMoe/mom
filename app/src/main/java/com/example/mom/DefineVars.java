@@ -7,6 +7,7 @@ public class DefineVars {
         Login with phone number     : https://firebase.google.com/docs/auth/android/phone-auth
         Tablayout MDC               : https://www.youtube.com/watch?v=eXK4VMI9XLI (MDC: Material Design Components)
         Phone authen example        : https://www.youtube.com/watch?v=W8eGh6vKKR8
+        Conver phone number         : https://github.com/google/libphonenumber
 
         ================== Note =================
         Signout Fbase               : FirebaseAuth.getInstance().signOut();

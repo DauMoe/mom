@@ -1,5 +1,6 @@
 package com.example.mom.Login;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
@@ -25,6 +26,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -32,11 +36,12 @@ import java.util.regex.Pattern;
 
 public class PhoneLoginActivity extends AppCompatActivity {
     private ActivityPhoneLoginBinding binding;
-    private TextInputLayout phoneNum;
+    private TextInputLayout phoneNum, otp;
     private AppCompatButton sendOTP, verify;
     private LinearLayout getPhoneNumber, getOTP;
     private TextView resend;
-    private PhoneNumberUtils phoneUtil;
+    private ProgressDialog progressDialog;
+    private PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
     protected PhoneAuthOptions options;
     protected String verifyID;
     protected PhoneAuthProvider.ForceResendingToken forceToken;
@@ -53,6 +58,10 @@ public class PhoneLoginActivity extends AppCompatActivity {
         getOTP          = binding.getOtp;
         verify          = binding.verify;
         resend          = binding.resendOtp;
+        otp             = binding.otp;
+        progressDialog  = new ProgressDialog(this);
+        getPhoneNumber.setVisibility(View.VISIBLE);
+        getOTP.setVisibility(View.GONE);
     }
 
     @Override
@@ -66,17 +75,17 @@ public class PhoneLoginActivity extends AppCompatActivity {
 
             @Override
             public void onVerificationFailed(@NonNull FirebaseException e) {
-
+                Toast.makeText(getApplicationContext(), "Failed verify OTP!", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                 super.onCodeSent(s, forceResendingToken);
-                Toast.makeText(getApplicationContext(), "Sending OTP!", Toast.LENGTH_LONG).show();
                 forceToken = forceResendingToken;
                 verifyID   = s;
                 getPhoneNumber.setVisibility(View.GONE);
                 getOTP.setVisibility(View.VISIBLE);
+                progressDialog.hide();
             }
         };
 
@@ -89,9 +98,18 @@ public class PhoneLoginActivity extends AppCompatActivity {
                     return;
                 } else {
                     phoneNum.setError(null);
-//                    phoneNum.getEditText().setText(phoneUtil.formatNumber(phone_number, "","VN"));
-                    Log.i("PHONE CONVERTED: ", phoneUtil.formatNumber(phone_number, Locale.getDefault().getCountry()));
-//                    CredentialPhoneNumber(phone_number);
+                    progressDialog.setMessage("Sending OTP...");
+                    progressDialog.show();
+                    try {
+                        //Country code denpend on your device language
+                        //String countryCode = getResources().getConfiguration().locale.getCountry();
+                        Phonenumber.PhoneNumber temp = phoneUtil.parse(phone_number, "VN");
+                        phone_number = phoneUtil.format(temp, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+                        phoneNum.getEditText().setText(phone_number);
+                        CredentialPhoneNumber(phone_number);
+                    } catch (NumberParseException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -99,23 +117,48 @@ public class PhoneLoginActivity extends AppCompatActivity {
         resend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressDialog.setMessage("Resending OTP...");
+                progressDialog.show();
                 resendOTP(phoneNum.getEditText().getText().toString());
+            }
+        });
+
+        verify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String OTP = otp.getEditText().getText().toString();
+                if (OTP.isEmpty()) {
+                    otp.setError(getString(R.string.otp_err));
+                    return;
+                } else {
+                    progressDialog.setMessage("Verifying...");
+                    progressDialog.show();
+                    otp.setError(null);
+                    VerifyOTP(OTP);
+                }
             }
         });
     }
 
+    private void VerifyOTP(String otpcode) {
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verifyID, otpcode);
+        SigninWithCredential(credential);
+    }
+
     private void SigninWithCredential(PhoneAuthCredential phoneAuthCredential) {
+        progressDialog.hide();
         auth.signInWithCredential(phoneAuthCredential)
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
                         String phone = auth.getCurrentUser().getPhoneNumber();
+                        Log.i("RESULT: ", "Login success!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-
+                        Log.e("ERROR: ", "Login failed!");
                     }
                 });
     }
@@ -142,6 +185,4 @@ public class PhoneLoginActivity extends AppCompatActivity {
                 .build();
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
-
-
 }
