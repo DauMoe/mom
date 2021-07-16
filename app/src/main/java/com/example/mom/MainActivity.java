@@ -1,6 +1,5 @@
 package com.example.mom;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,20 +12,24 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.mom.Login.AccLoginActivity;
+import com.example.mom.Modules.User;
 import com.example.mom.databinding.ActivityMainBinding;
-import com.example.mom.databinding.SidebarHeaderBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     private DrawerLayout sidebar;
     private NavigationView navagationview;
     protected FirebaseUser user;
+    protected FirebaseFirestore db;
     String displayName, displayEmail, userID;
     Uri avaUrl;
     TextView dpEmail, dpUser;
@@ -54,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         navagationview  = binding.navagationview;
         signout         = binding.signout;
         user            = FirebaseAuth.getInstance().getCurrentUser();
+        db              = FirebaseFirestore.getInstance();
         userID          = user.getUid();
         avaUrl          = user.getPhotoUrl();
         displayName     = user.getDisplayName();
@@ -62,10 +67,26 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         sidebar.setDrawerListener(this);
     }
 
+
     @Override
     protected void onStart() {
         super.onStart();
+        db.collection("users")
+                .whereEqualTo("uniqueID", user.getEmail())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot i: task.getResult()) {
+                                User x = i.toObject(User.class);
+                                Log.i("ID:", String.valueOf(x.getUniqueID()));
+                            }
+                        }
+                    }
+                });
 
+        sidebar_menu.setTitle("20.402.00 VNĐ");
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
         navagationview.setNavigationItemSelectedListener(item -> {
             item.setChecked(true);

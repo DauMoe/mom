@@ -3,7 +3,6 @@ package com.example.mom.Login;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -28,11 +27,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
+//import com.google.i18n.phonenumbers.NumberParseException;
+//import com.google.i18n.phonenumbers.PhoneNumberUtil;
+//import com.google.i18n.phonenumbers.Phonenumber;
 
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -43,7 +41,7 @@ public class PhoneLoginActivity extends AppCompatActivity {
     private LinearLayout getPhoneNumber, getOTP;
     private TextView resend;
     private ProgressDialog progressDialog;
-    private PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+//    private PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
     protected PhoneAuthOptions options;
     protected String verifyID;
     protected PhoneAuthProvider.ForceResendingToken forceToken;
@@ -104,16 +102,18 @@ public class PhoneLoginActivity extends AppCompatActivity {
                     phoneNum.setError(null);
                     progressDialog.setMessage("Sending OTP...");
                     progressDialog.show();
-                    try {
+                    phoneNum.getEditText().setText("+84"+phone_number.substring(1));
+                    CredentialPhoneNumber("+84"+phone_number.substring(1));
+//                    try {
                         //Country code denpend on your device language
                         //String countryCode = getResources().getConfiguration().locale.getCountry();
-                        Phonenumber.PhoneNumber temp = phoneUtil.parse(phone_number, "VN");
-                        phone_number = phoneUtil.format(temp, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
-                        phoneNum.getEditText().setText(phone_number);
-                        CredentialPhoneNumber(phone_number);
-                    } catch (NumberParseException e) {
-                        e.printStackTrace();
-                    }
+//                        Phonenumber.PhoneNumber temp = phoneUtil.parse(phone_number, "VN");
+//                        phone_number = phoneUtil.format(temp, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+//                        phoneNum.getEditText().setText(phone_number);
+//                        CredentialPhoneNumber(phone_number);
+//                    } catch (NumberParseException e) {
+//                        e.printStackTrace();
+//                    }
                 }
             }
         });

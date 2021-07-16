@@ -9,6 +9,8 @@ public class DefineVars {
         Phone authen example        : https://www.youtube.com/watch?v=W8eGh6vKKR8
         Conver phone number         : https://github.com/google/libphonenumber
         Navigation Drawer MDC       : https://material.io/components/navigation-drawer/android#bottom-navigation-drawer
+        Glide                       : https://github.com/bumptech/glide
+        Manager User Fbase          : https://firebase.google.com/docs/auth/android/manage-users
 
         ================== Note =================
     */
