@@ -12,6 +12,46 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:id="@+id/sidebar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:openDrawer="start">
+
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true">
+                <com.google.android.material.appbar.AppBarLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
+                    android:fitsSystemWindows="true">
+                    <com.google.android.material.appbar.MaterialToolbar
+                        android:id="@+id/sidebar_menu"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        app:title="@null"
+                        app:navigationIcon="@drawable/ic_menu"
+                        style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
+                        android:background="@android:color/transparent"
+                        android:elevation="0dp" />
+                </com.google.android.material.appbar.AppBarLayout>
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/navagationview"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:headerLayout="@layout/sidebar_header"
+                android:maxWidth="250dp"
+                app:menu="@menu/sidebar"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"/>
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_scanqr"
             app:layout_constraintBottom_toBottomOf="parent"

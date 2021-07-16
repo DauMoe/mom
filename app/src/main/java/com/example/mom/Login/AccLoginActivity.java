@@ -116,8 +116,8 @@ public class AccLoginActivity extends AppCompatActivity {
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                Log.w("GOOGLE LOGIN", "Google sign in failed", e);
-                Toast.makeText(getApplicationContext(), "Google login is failed!", Toast.LENGTH_LONG).show();
+                Log.w("GOOGLE LOGIN", "Google sign failed", e);
+                Toast.makeText(getApplicationContext(), "Google login failed!", Toast.LENGTH_LONG).show();
                 acclogin.setVisibility(View.VISIBLE);
             }
         }
@@ -138,7 +138,7 @@ public class AccLoginActivity extends AppCompatActivity {
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w("GOOGLE LOGIN", "signInWithCredential:failure", task.getException());
-                        Toast.makeText(getApplicationContext(), "Sign in with credential failed!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Signin with credential failed!", Toast.LENGTH_LONG).show();
                         acclogin.setVisibility(View.VISIBLE);
                     }
                 }

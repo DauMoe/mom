@@ -8,6 +8,7 @@ public class DefineVars {
         Tablayout MDC               : https://www.youtube.com/watch?v=eXK4VMI9XLI (MDC: Material Design Components)
         Phone authen example        : https://www.youtube.com/watch?v=W8eGh6vKKR8
         Conver phone number         : https://github.com/google/libphonenumber
+        Navigation Drawer MDC       : https://material.io/components/navigation-drawer/android#bottom-navigation-drawer
 
         ================== Note =================
         Signout Fbase               : FirebaseAuth.getInstance().signOut();
