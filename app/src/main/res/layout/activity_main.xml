@@ -48,7 +48,19 @@
                 app:menu="@menu/sidebar"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="start"/>
+                android:layout_gravity="start">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/signout"
+                    android:text="Signout"
+                    android:textAllCaps="false"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </com.google.android.material.navigation.NavigationView>
+
         </androidx.drawerlayout.widget.DrawerLayout>
 
 

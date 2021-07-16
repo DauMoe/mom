@@ -73,10 +73,12 @@ public class PhoneLoginActivity extends AppCompatActivity {
             @Override
             public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
                 SigninWithCredential(phoneAuthCredential);
+                progressDialog.dismiss();
             }
 
             @Override
             public void onVerificationFailed(@NonNull FirebaseException e) {
+                progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), "Verify failed!", Toast.LENGTH_LONG).show();
             }
 

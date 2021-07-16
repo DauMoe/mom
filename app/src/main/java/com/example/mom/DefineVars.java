@@ -11,7 +11,6 @@ public class DefineVars {
         Navigation Drawer MDC       : https://material.io/components/navigation-drawer/android#bottom-navigation-drawer
 
         ================== Note =================
-        Signout Fbase               : FirebaseAuth.getInstance().signOut();
     */
 
     public static final int LOADING_TIME    = 5000;     //ms
