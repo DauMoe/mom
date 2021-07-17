@@ -45,19 +45,19 @@ public class PaymentActivity extends AppCompatActivity {
     BiometricPrompt.PromptInfo promptInfo;
     Gson gson = new Gson();
     FirebaseFirestore db;
-    FirebaseUser auth;
+    FirebaseUser user;
     String amount;
     HashMap<String, Object> updateData = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding         = DataBindingUtil.setContentView(this, R.layout.activity_payment);
-        time_format     = new SimpleDateFormat("kk:mm:ss");
-        calendar        = Calendar.getInstance();
-        executor        = ContextCompat.getMainExecutor(this);
-        db              = FirebaseFirestore.getInstance();
-        auth            = FirebaseAuth.getInstance().getCurrentUser();
+        binding                 = DataBindingUtil.setContentView(this, R.layout.activity_payment);
+        time_format             = new SimpleDateFormat("kk:mm:ss");
+        calendar                = Calendar.getInstance();
+        executor                = ContextCompat.getMainExecutor(this);
+        db                      = FirebaseFirestore.getInstance();
+        user                    = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     @Override
@@ -119,35 +119,35 @@ public class PaymentActivity extends AppCompatActivity {
         TextInputLayout password = v.findViewById(R.id.pin_authen);
         builder.setView(v);
         db.collection(USERS)
-                .whereEqualTo("uniqueID", auth.getEmail())
-                .limit(1)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot i: task.getResult()) {
-                            User x = i.toObject(User.class);
-                            builder.setCancelable(false)
-                                    .setPositiveButton("Payment", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            if (password.getEditText().getText().toString().equals(x.getPIN())) {
-                                                updateAmount();
-                                            } else {
-                                                Toast.makeText(getApplicationContext(), "Password invalid", Toast.LENGTH_LONG).show();
-                                            }
-                                        }
-                                    })
-                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.cancel();
-                                        }
-                                    });
-                            AlertDialog dialog = builder.create();
-                            dialog.show();
-                        }
+            .whereEqualTo("uniqueID", user.getUid())
+            .limit(1)
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot i: task.getResult()) {
+                        User x = i.toObject(User.class);
+                        builder.setCancelable(true)
+                            .setPositiveButton("Payment", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (password.getEditText().getText().toString().equals(x.getPIN())) {
+                                        updateAmount();
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "Password invalid", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
                     }
-                });
+                }
+            });
     }
 
     private void PaymentInvoice() {
@@ -164,37 +164,37 @@ public class PaymentActivity extends AppCompatActivity {
 
     private void updateAmount() {
         db.collection(USERS)
-                .whereEqualTo("uniqueID", auth.getEmail())
-                .limit(1)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot i: task.getResult()) {
-                            User x = i.toObject(User.class);
-                            if (Long.valueOf(x.getAmount()) >= Long.valueOf(amount)) {
-                                long remain_amount = Long.valueOf(x.getAmount()) - Long.valueOf(amount);
-                                updateData.clear();
-                                updateData.put("amount", String.valueOf(remain_amount));
-                                db.collection(USERS).document(i.getId()).update(updateData)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            //Payment done
-                                            startActivity(new Intent(PaymentActivity.this, MainActivity.class));
-                                            finish();
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(getApplicationContext(), "Fetch data firestore failed!", Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Your amount is not enough", Toast.LENGTH_LONG).show();
-                            }
+            .whereEqualTo("uniqueID", user.getUid())
+            .limit(1)
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot i: task.getResult()) {
+                        User x = i.toObject(User.class);
+                        if (Long.valueOf(x.getAmount()) >= Long.valueOf(amount)) {
+                            long remain_amount = Long.valueOf(x.getAmount()) - Long.valueOf(amount);
+                            updateData.clear();
+                            updateData.put("amount", String.valueOf(remain_amount));
+                            db.collection(USERS).document(i.getId()).update(updateData)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        //Payment done
+                                        startActivity(new Intent(PaymentActivity.this, MainActivity.class));
+                                        finish();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getApplicationContext(), "Fetch data firestore failed!", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Your amount is not enough", Toast.LENGTH_LONG).show();
                         }
                     }
-                });
+                }
+            });
     }
 }

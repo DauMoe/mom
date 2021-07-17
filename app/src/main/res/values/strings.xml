@@ -20,7 +20,7 @@
 
     <!-- Events item -->
     <string name="invoice_id">INVOICE:</string>
-    <string name="paid_by">Paid by:</string>
+    <string name="paid_by">From:</string>
     <string name="paid_time">Paid on:</string>
     <string name="paid_amount">Amount:</string>
 </resources>

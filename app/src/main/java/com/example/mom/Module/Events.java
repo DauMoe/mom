@@ -1,31 +1,23 @@
 package com.example.mom.Module;
 
 public class Events implements  Comparable<Events>{
-    private String amount, billID, uniqueID, unit, from;
-    private boolean earnings;
-    private long time;
+    private String billID, uniqueID, unit, from;
+    private boolean earning;
+    private long time, amount;
     private int groupID;
 
     public Events() {
     }
 
-    public Events(String amount, String billID, String uniqueID, String unit, String from, boolean earnings, long time, int groupID) {
-        this.amount = amount;
+    public Events(String billID, String uniqueID, String unit, String from, boolean earnings, long time, long amount, int groupID) {
         this.billID = billID;
         this.uniqueID = uniqueID;
         this.unit = unit;
         this.from = from;
-        this.earnings = earnings;
+        this.earning = earning;
         this.time = time;
-        this.groupID = groupID;
-    }
-
-    public String getAmount() {
-        return amount;
-    }
-
-    public void setAmount(String amount) {
         this.amount = amount;
+        this.groupID = groupID;
     }
 
     public String getBillID() {
@@ -60,12 +52,12 @@ public class Events implements  Comparable<Events>{
         this.from = from;
     }
 
-    public boolean isEarnings() {
-        return earnings;
+    public boolean isEarning() {
+        return earning;
     }
 
-    public void setEarnings(boolean earnings) {
-        this.earnings = earnings;
+    public void setEarning(boolean earning) {
+        this.earning = earning;
     }
 
     public long getTime() {
@@ -74,6 +66,14 @@ public class Events implements  Comparable<Events>{
 
     public void setTime(long time) {
         this.time = time;
+    }
+
+    public long getAmount() {
+        return amount;
+    }
+
+    public void setAmount(long amount) {
+        this.amount = amount;
     }
 
     public int getGroupID() {

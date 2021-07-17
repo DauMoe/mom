@@ -1,20 +1,21 @@
 package com.example.mom.Module;
 
 public class User {
-    private String username, email, phone, amount, unit, uniqueID, GroupID, PIN;
+    private String username, email, phone, unit, uniqueID, GroupID, PIN;
+    private long amount;
 
     public User() {
     }
 
-    public User(String username, String email, String phone, String amount, String unit, String uniqueID, String groupID, String PIN) {
+    public User(String username, String email, String phone, String unit, String uniqueID, String groupID, String PIN, long amount) {
         this.username = username;
         this.email = email;
         this.phone = phone;
-        this.amount = amount;
         this.unit = unit;
         this.uniqueID = uniqueID;
         GroupID = groupID;
         this.PIN = PIN;
+        this.amount = amount;
     }
 
     public String getUsername() {
@@ -39,14 +40,6 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getAmount() {
-        return amount;
-    }
-
-    public void setAmount(String amount) {
-        this.amount = amount;
     }
 
     public String getUnit() {
@@ -79,5 +72,13 @@ public class User {
 
     public void setPIN(String PIN) {
         this.PIN = PIN;
+    }
+
+    public long getAmount() {
+        return amount;
+    }
+
+    public void setAmount(long amount) {
+        this.amount = amount;
     }
 }

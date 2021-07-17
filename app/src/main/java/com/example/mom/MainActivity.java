@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.example.mom.Adapter.ExchangeAdapter;
 import com.example.mom.Login.AccLoginActivity;
 import com.example.mom.Module.Events;
+import com.example.mom.Module.GroupUsers;
 import com.example.mom.Module.Invoice;
 import com.example.mom.Module.User;
 import com.example.mom.databinding.ActivityMainBinding;
@@ -33,6 +34,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -41,10 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.example.mom.DefineVars.MOM_BILL;
-import static com.example.mom.DefineVars.PAYMENT_EVENTS;
-import static com.example.mom.DefineVars.PAYMENT_INFO;
-import static com.example.mom.DefineVars.USERS;
+import static com.example.mom.DefineVars.*;
 
 public class MainActivity extends AppCompatActivity implements DrawerLayout.DrawerListener {
     private ActivityMainBinding binding;
@@ -61,25 +60,23 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     TextView dpEmail, dpUser;
     ImageView ava;
     Gson gson = new Gson();
-    boolean emailVerified;
     ExchangeAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding         = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        scanQR          = binding.fabScanqr;
-        sidebar_menu    = binding.sidebarMenu;
-        sidebar         = binding.sidebar;
-        navagationview  = binding.navagationview;
-        signout         = binding.signout;
-        user            = FirebaseAuth.getInstance().getCurrentUser();
-        db              = FirebaseFirestore.getInstance();
-        userID          = user.getUid();
-        avaUrl          = user.getPhotoUrl();
-        displayName     = user.getDisplayName();
-        displayEmail    = user.getEmail();
-        emailVerified   = user.isEmailVerified();
+        binding                     = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        scanQR                      = binding.fabScanqr;
+        sidebar_menu                = binding.sidebarMenu;
+        sidebar                     = binding.sidebar;
+        navagationview              = binding.navagationview;
+        signout                     = binding.signout;
+        user                        = FirebaseAuth.getInstance().getCurrentUser();
+        db                          = FirebaseFirestore.getInstance();
+        userID                      = user.getUid();
+        avaUrl                      = user.getPhotoUrl();
+        displayName                 = user.getDisplayName();
+        displayEmail                = user.getEmail();
         sidebar.setDrawerListener(this);
 
         //Recycleview init
@@ -93,18 +90,20 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     protected void onStart() {
         super.onStart();
         db.collection(USERS)
-            .whereEqualTo("uniqueID", user.getEmail())
+            .whereEqualTo("uniqueID", userID)
             .limit(1)
             .get()
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot i: task.getResult()) {
                         User x = i.toObject(User.class);
-                        sidebar_menu.setTitle(x.getAmount() + " " +x.getUnit());
+                        sidebar_menu.setTitle("Balance: "+x.getAmount() + " " +x.getUnit());
                     }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
                 }
             });
-        GetInvoiceData();
+        GetInvoiceData(false);
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
         navagationview.setNavigationItemSelectedListener(item -> {
             item.setChecked(true);
@@ -112,12 +111,13 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             //Start intent
             switch (item.getItemId()) {
                 case R.id.exchange_history:
-                    GetInvoiceData();
+                    GetInvoiceData(false);
+                    break;
+                case R.id.group_history:
                     break;
             }
             return true;
         });
-
         scanQR.setOnClickListener(v -> {
             IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
             intentIntegrator.setPrompt("Tip: Vol up/down to turn on/off flash!");
@@ -129,28 +129,49 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         signout.setOnClickListener(v -> SignOut());
     }
 
-    private void GetInvoiceData() {
-        db.collection(PAYMENT_EVENTS)
-            .whereEqualTo("uniqueID", user.getEmail())
-            .get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    data.clear();
-                    for (QueryDocumentSnapshot i: task.getResult()) {
-                        Events x = i.toObject(Events.class);
-                        data.add(x);
-                    }
-                    if (data.size() > 0) {
-                        binding.emptyInvoice.setVisibility(View.GONE);
-                        binding.exchangeRcv.setVisibility(View.VISIBLE);
-                        Collections.sort(data); //sort by timestamp
-                    } else {
-                        binding.emptyInvoice.setVisibility(View.VISIBLE);
-                        binding.exchangeRcv.setVisibility(View.GONE);
-                    }
-                    adapter.setData(data);
-                }
-            });
+    private void GetInvoiceData(boolean isGroup) {
+        if (isGroup) {
+//            db.collection(PAYMENT_EVENTS)
+//                    .whereArrayContains("list_user", user.getUid())
+//                    .get()
+//                    .addOnCompleteListener(task -> {
+//                        if (task.isSuccessful()) {
+//                            for (QueryDocumentSnapshot i: task.getResult()) {
+//                                GroupUsers x = i.toObject(GroupUsers.class);
+//
+//                            }
+//                        } else {
+//                            Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
+//                        }
+//                    })
+//                    .addOnFailureListener(task -> {
+//
+//                    });
+        } else {
+            db.collection(PAYMENT_EVENTS)
+                    .whereEqualTo("uniqueID", userID)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            data.clear();
+                            for (QueryDocumentSnapshot i: task.getResult()) {
+                                Events x = i.toObject(Events.class);
+                                data.add(x);
+                            }
+                            if (data.size() > 0) {
+                                binding.emptyInvoice.setVisibility(View.GONE);
+                                binding.exchangeRcv.setVisibility(View.VISIBLE);
+                                Collections.reverse(data); //sort by timestamp
+                            } else {
+                                binding.emptyInvoice.setVisibility(View.VISIBLE);
+                                binding.exchangeRcv.setVisibility(View.GONE);
+                            }
+                            adapter.setData(data);
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
+                        }
+                    });
+        }
     }
 
     private void handlerQR(IntentResult intentResult) {
@@ -175,7 +196,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         super.onActivityResult(requestCode, resultCode, data);
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (intentResult.getContents() != null) {
-//            Toast.makeText(getApplicationContext(), intentResult.getContents(), Toast.LENGTH_LONG).show();
             handlerQR(intentResult);
         } else {
             Toast.makeText(getApplicationContext(), "Cancel!", Toast.LENGTH_LONG).show();
@@ -191,9 +211,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
     @Override
-    public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
-
-    }
+    public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {}
 
     @Override
     public void onDrawerOpened(@NonNull View drawerView) {
@@ -216,12 +234,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
     @Override
-    public void onDrawerClosed(@NonNull View drawerView) {
-
-    }
+    public void onDrawerClosed(@NonNull View drawerView) {}
 
     @Override
-    public void onDrawerStateChanged(int newState) {
-
-    }
+    public void onDrawerStateChanged(int newState) {}
 }

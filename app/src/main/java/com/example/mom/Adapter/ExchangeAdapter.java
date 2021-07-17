@@ -47,16 +47,14 @@ public class ExchangeAdapter extends RecyclerView.Adapter<ExchangeAdapter.Exchan
         Events item = data.get(position);
         if (item == null) return;
         holder.InvoiceID.setText("#"+item.getBillID());
-        holder.PaidBy.setText(item.getUniqueID());
+        holder.PaidBy.setText(item.getFrom());
         holder.Amount.setText(item.getAmount()+" "+item.getUnit());
         calendar.setTimeInMillis(item.getTime());
         paid_on = listMonth[calendar.get(Calendar.MONTH)] + " "+calendar.get(Calendar.DAY_OF_MONTH)+", "+calendar.get(Calendar.YEAR) + " "+formatter.format(Long.valueOf(item.getTime()));
         holder.PaidOn.setText(paid_on);
-        if (item.isEarnings()) {
-            holder.ExchangeEarning.setTag(R.drawable.ic_up_arrown);
+        if (item.isEarning()) {
             holder.ExchangeEarning.setImageResource(R.drawable.ic_up_arrown);
         } else {
-            holder.ExchangeEarning.setTag(R.drawable.ic_down_arrown);
             holder.ExchangeEarning.setImageResource(R.drawable.ic_down_arrown);
         }
     }
