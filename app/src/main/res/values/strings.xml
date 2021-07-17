@@ -16,4 +16,5 @@
 
     <!-- Paymeny -->
     <string name="payment_amount">Amount</string>
+    <string name="password_dialog">Enter your PIN</string>
 </resources>

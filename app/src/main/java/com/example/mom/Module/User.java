@@ -1,12 +1,12 @@
 package com.example.mom.Module;
 
 public class User {
-    private String username, email, phone, amount, unit, uniqueID, GroupID;
+    private String username, email, phone, amount, unit, uniqueID, GroupID, PIN;
 
     public User() {
     }
 
-    public User(String username, String email, String phone, String amount, String unit, String uniqueID, String groupID) {
+    public User(String username, String email, String phone, String amount, String unit, String uniqueID, String groupID, String PIN) {
         this.username = username;
         this.email = email;
         this.phone = phone;
@@ -14,6 +14,7 @@ public class User {
         this.unit = unit;
         this.uniqueID = uniqueID;
         GroupID = groupID;
+        this.PIN = PIN;
     }
 
     public String getUsername() {
@@ -70,5 +71,13 @@ public class User {
 
     public void setGroupID(String groupID) {
         GroupID = groupID;
+    }
+
+    public String getPIN() {
+        return PIN;
+    }
+
+    public void setPIN(String PIN) {
+        this.PIN = PIN;
     }
 }

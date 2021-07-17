@@ -14,7 +14,8 @@ public class DefineVars {
         Glide                       : https://github.com/bumptech/glide
         Manager User Fbase          : https://firebase.google.com/docs/auth/android/manage-users
         Databinding                 : https://developer.android.com/topic/libraries/data-binding/expressions
-        Query firestore             : https://firebase.google.com/docs/firestore/query-data/order-limit-data#java
+        Query/Getting firestore     : https://firebase.google.com/docs/firestore/query-data/order-limit-data#java
+        Biometric Authentication    : https://developer.android.com/training/sign-in/biometric-auth
 
         ================== Note =================
         platform-tools              : %LOCALAPPDATA%\Android\Sdk\platform-tools
