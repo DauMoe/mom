@@ -38,9 +38,14 @@
                         android:elevation="0dp" />
                 </com.google.android.material.appbar.AppBarLayout>
             </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/empty_invoice"
+                android:text="No invoice paid!"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/exchange_rcv"
-                android:layout_marginTop="75dp"
+                android:layout_marginTop="85dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 

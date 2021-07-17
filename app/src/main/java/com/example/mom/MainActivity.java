@@ -115,6 +115,13 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         data.add(x);
                     }
                     adapter.setData(data);
+                    if (data.size() > 0) {
+                        binding.emptyInvoice.setVisibility(View.GONE);
+                        binding.exchangeRcv.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.emptyInvoice.setVisibility(View.VISIBLE);
+                        binding.exchangeRcv.setVisibility(View.GONE);
+                    }
                 }
             });
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
