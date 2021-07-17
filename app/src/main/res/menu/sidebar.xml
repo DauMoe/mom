@@ -1,34 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/amount"
+        android:title="Amount">
+        <group
+            android:id="@+id/group1"
+            android:checkableBehavior="single">
+                <item
+                    android:id="@+id/add_money"
+                    android:icon="@drawable/ic_plus"
+                    android:title="Add money"/>
+        </group>
+    </item>
+
     <group
-        android:id="@+id/sidebar"
+        android:id="@+id/group2"
         android:checkableBehavior="single">
-        <item
-            android:id="@+id/exchange_history"
-            android:icon="@drawable/ic_history"
-            android:title="Exchange"
-            android:checked="true"/>
+            <item
+                android:id="@+id/exchange_history"
+                android:icon="@drawable/ic_history"
+                android:title="Exchange"
+                android:checked="true"/>
 
-        <item
-            android:id="@+id/group_history"
-            android:icon="@drawable/ic_chart"
-            android:title="Group"/>
+            <item
+                android:id="@+id/group_history"
+                android:icon="@drawable/ic_chart"
+                android:title="Group"/>
 
-        <item
-            android:id="@+id/manager_group"
-            android:icon="@drawable/ic_group"
-            android:title="Manager"/>
+            <item
+                android:id="@+id/manager_group"
+                android:icon="@drawable/ic_group"
+                android:title="Manager"/>
     </group>
+
     <group
+        android:id="@+id/group3"
         android:checkableBehavior="single">
-        <item
-            android:id="@+id/change_pin"
-            android:icon="@drawable/ic_numpad"
-            android:title="Change PIN"/>
-        <item
-            android:id="@+id/info"
-            android:icon="@drawable/ic_info"
-            android:title="Update info"/>
+            <item
+                android:title="Personal">
+                <item
+                    android:id="@+id/change_pin"
+                    android:icon="@drawable/ic_numpad"
+                    android:title="Change PIN"/>
+                <item
+                    android:id="@+id/info"
+                    android:icon="@drawable/ic_info"
+                    android:title="Update info"/>
+                </item>
     </group>
 </menu>

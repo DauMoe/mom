@@ -3,6 +3,7 @@ package com.example.mom;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,9 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.mom.Adapter.ExchangeAdapter;
 import com.example.mom.Login.AccLoginActivity;
+import com.example.mom.Module.Events;
 import com.example.mom.Module.Invoice;
 import com.example.mom.Module.User;
 import com.example.mom.databinding.ActivityMainBinding;
@@ -26,12 +31,17 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.example.mom.DefineVars.MOM_BILL;
+import static com.example.mom.DefineVars.PAYMENT_EVENTS;
 import static com.example.mom.DefineVars.PAYMENT_INFO;
 import static com.example.mom.DefineVars.USERS;
 
@@ -42,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     private MaterialButton signout;
     private DrawerLayout sidebar;
     private NavigationView navagationview;
+    private List<Events> data = new ArrayList<>();
     protected FirebaseUser user;
     protected FirebaseFirestore db;
     String displayName, displayEmail, userID;
@@ -50,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     ImageView ava;
     Gson gson = new Gson();
     boolean emailVerified;
+    ExchangeAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,40 +80,59 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         displayEmail    = user.getEmail();
         emailVerified   = user.isEmailVerified();
         sidebar.setDrawerListener(this);
-    }
 
+        //Recycleview init
+        adapter                     = new ExchangeAdapter(getApplicationContext());
+        LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false);
+        binding.exchangeRcv.setLayoutManager(manager);
+        binding.exchangeRcv.setAdapter(adapter);
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
         db.collection(USERS)
-                .whereEqualTo("uniqueID", user.getEmail())
-                .limit(1)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot i: task.getResult()) {
-                            User x = i.toObject(User.class);
-                            sidebar_menu.setTitle(x.getAmount() + " " +x.getUnit());
-                        }
+            .whereEqualTo("uniqueID", user.getEmail())
+            .limit(1)
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot i: task.getResult()) {
+                        User x = i.toObject(User.class);
+                        sidebar_menu.setTitle(x.getAmount() + " " +x.getUnit());
                     }
-                });
+                }
+            });
+        db.collection(PAYMENT_EVENTS)
+            .whereEqualTo("uniqueID", user.getEmail())
+//            .orderBy("time", Query.Direction.DESCENDING)
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    data.clear();
+                    for (QueryDocumentSnapshot i: task.getResult()) {
+                        Events x = i.toObject(Events.class);
+                        data.add(x);
+                    }
+                    adapter.setData(data);
+                }
+            });
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
         navagationview.setNavigationItemSelectedListener(item -> {
             item.setChecked(true);
             sidebar.close();
             //Start intent
             switch (item.getItemId()) {
-                case R.id.exchange_history:
-                    break;
-                case R.id.group_history:
-                    break;
-                case R.id.manager_group:
-                    break;
-                case R.id.change_pin:
-                    break;
-                case R.id.info:
-                    break;
+//                case R.id.exchange_history:
+//                    break;
+//                case R.id.group_history:
+//                    break;
+//                case R.id.manager_group:
+//                    break;
+//                case R.id.change_pin:
+//                    break;
+//                case R.id.info:
+//                    break;
             }
             return true;
         });
@@ -109,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         scanQR.setOnClickListener(v -> {
             IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
             intentIntegrator.setPrompt("Tip: Vol up/down to turn on/off flash!");
-            intentIntegrator.setBeepEnabled(false);
+            intentIntegrator.setBeepEnabled(true);
             intentIntegrator.setOrientationLocked(true);
             intentIntegrator.setCaptureActivity(Capture.class);
             intentIntegrator.initiateScan();

@@ -69,7 +69,7 @@ public class PaymentActivity extends AppCompatActivity {
         calendar.setTimeInMillis(payment.getTime());
 
         //Set Invoice Info
-        binding.paymentBillID.setText(payment.getBillID());
+        binding.paymentBillID.setText("#"+payment.getBillID());
         binding.paymentBillId.setText(payment.getBillID());
         binding.billDuedate.setText(listMonth[calendar.get(Calendar.MONTH)] + " "+calendar.get(Calendar.DAY_OF_MONTH)+", "+calendar.get(Calendar.YEAR));
         binding.billTime.setText(time_format.format(payment.getTime()));

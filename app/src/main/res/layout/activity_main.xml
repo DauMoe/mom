@@ -38,11 +38,12 @@
                         android:elevation="0dp" />
                 </com.google.android.material.appbar.AppBarLayout>
             </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/personal_rcv"
+                android:id="@+id/exchange_rcv"
+                android:layout_marginTop="75dp"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="wrap_content"/>
+
             <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navagationview"
                 app:layout_constraintTop_toTopOf="parent"

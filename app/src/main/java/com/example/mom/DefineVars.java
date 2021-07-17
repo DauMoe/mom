@@ -19,19 +19,22 @@ public class DefineVars {
 
         ================== Note =================
         platform-tools              : %LOCALAPPDATA%\Android\Sdk\platform-tools
+        zXing beep crash fix        : https://github.com/zxing/zxing/issues/775
 
     */
 
-    public static final int LOADING_TIME    = 5000;     //ms
-    public static final int RC_SIGN_IN      = 123;      //random code
-    public static final long TIMEOUT        = 60L;      //After <TIMEOUT> senconds, OTP will be invoked
-    public static final String[] listMonth  = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    public static final int LOADING_TIME        = 5000;     //ms
+    public static final int RC_SIGN_IN          = 123;      //random code
+    public static final long TIMEOUT            = 60L;      //After <TIMEOUT> senconds, OTP will be invoked
+    public static final String[] listMonth      = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     //============== FireStore Collections ===============
-    public static final String USERS        = "users";
-    public static final String BILLS        = "bills";
-    public static final String MOM_BILL     = "mom";
+    public static final String USERS            = "users";
+    public static final String PAYMENT_EVENTS   = "payment_events";
+    public static final String GROUP_USERS      = "groups";
 
     //============== Intent ==============
-    public static final String PAYMENT_INFO = "payment_info";
+    public static final String PAYMENT_INFO     = "payment_info";
+    public static final String MOM_BILL         = "mom";
+
 }
