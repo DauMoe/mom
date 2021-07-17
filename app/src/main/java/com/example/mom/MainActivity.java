@@ -3,7 +3,6 @@ package com.example.mom;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,11 +16,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.mom.Login.AccLoginActivity;
-import com.example.mom.Module.Bill;
+import com.example.mom.Module.Invoice;
 import com.example.mom.Module.User;
 import com.example.mom.databinding.ActivityMainBinding;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,12 +27,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import static com.example.mom.DefineVars.MOM_BILL;
+import static com.example.mom.DefineVars.PAYMENT_INFO;
 import static com.example.mom.DefineVars.USERS;
 
 public class MainActivity extends AppCompatActivity implements DrawerLayout.DrawerListener {
@@ -119,9 +116,11 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     private void handlerQR(IntentResult intentResult) {
         try {
             //Convert String to Bill Object
-            Bill x = gson.fromJson(intentResult.getContents(), Bill.class);
+            Invoice x = gson.fromJson(intentResult.getContents(), Invoice.class);
             if (x.getCompany().equals(MOM_BILL)) {
-
+                Intent payment = new Intent(MainActivity.this, PaymentActivity.class);
+                payment.putExtra(PAYMENT_INFO, x);
+                startActivity(payment);
             } else {
                 Toast.makeText(getApplicationContext(), "This is not MoM QR!", Toast.LENGTH_LONG).show();
             }
@@ -136,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         super.onActivityResult(requestCode, resultCode, data);
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (intentResult.getContents() != null) {
+//            Toast.makeText(getApplicationContext(), intentResult.getContents(), Toast.LENGTH_LONG).show();
             handlerQR(intentResult);
         } else {
             Toast.makeText(getApplicationContext(), "Cancel!", Toast.LENGTH_LONG).show();

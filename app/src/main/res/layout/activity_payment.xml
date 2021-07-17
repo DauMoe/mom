@@ -118,7 +118,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                         <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/payment_duedate"
+                            android:id="@+id/bill_duedate"
                             app:layout_constraintTop_toBottomOf="@id/payment_duedate_title"
                             app:layout_constraintRight_toRightOf="parent"
                             android:textColor="@color/black"
@@ -158,6 +158,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                         <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/bill_total"
                             android:text="10 Items"
                             android:textColor="@color/black"
                             android:textSize="20dp"
@@ -175,12 +176,13 @@
                         android:gravity="end"
                         android:layout_height="wrap_content">
                         <com.google.android.material.textview.MaterialTextView
-                            android:text="Total"
+                            android:text="Time"
                             android:fontFamily="@font/poppins_medium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                         <com.google.android.material.textview.MaterialTextView
-                            android:text="10 Items"
+                            android:id="@+id/bill_time"
+                            android:text="13:20:10"
                             android:textColor="@color/black"
                             android:textSize="20dp"
                             android:fontFamily="@font/poppins_bold"
@@ -202,6 +204,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
                     <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/payment_amount"
                         android:text="100.000 VND"
                         android:textColor="@color/black"
                         android:textSize="28dp"
@@ -216,6 +219,7 @@
             android:id="@+id/pay"
             android:layout_gravity="bottom|center"
             android:fontFamily="@font/poppins_medium"
+            android:textSize="17dp"
             android:text="pay now"
             android:textStyle="bold"
             android:layout_marginBottom="35dp"

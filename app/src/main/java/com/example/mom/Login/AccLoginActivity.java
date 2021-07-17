@@ -95,11 +95,11 @@ public class AccLoginActivity extends AppCompatActivity {
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-//                Log.d("GOOGLE LOGIN:", "firebaseAuthWithGoogle:" + account.getId());
+                Log.d("GOOGLE LOGIN:", "firebaseAuthWithGoogle:" + account.getId());
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-//                Log.w("GOOGLE LOGIN", "Google sign failed", e);
+                Log.w("GOOGLE LOGIN", "Google sign failed", e);
                 Toast.makeText(getApplicationContext(), "Google login failed!", Toast.LENGTH_LONG).show();
                 acclogin.setVisibility(View.VISIBLE);
             }
