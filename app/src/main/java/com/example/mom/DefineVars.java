@@ -12,6 +12,7 @@ public class DefineVars {
         Glide                       : https://github.com/bumptech/glide
         Manager User Fbase          : https://firebase.google.com/docs/auth/android/manage-users
         Databinding                 : https://developer.android.com/topic/libraries/data-binding/expressions
+        Query firestore             : https://firebase.google.com/docs/firestore/query-data/order-limit-data#java
 
         ================== Note =================
         platform-tools              : %LOCALAPPDATA%\Android\Sdk\platform-tools

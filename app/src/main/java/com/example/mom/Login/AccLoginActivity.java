@@ -74,26 +74,9 @@ public class AccLoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        login_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LoginWithAccount();
-            }
-        });
-
-        google.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LoginWithGoogleClient();
-            }
-        });
-
-        phone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(AccLoginActivity.this, PhoneLoginActivity.class));
-            }
-        });
+        login_btn.setOnClickListener(v -> LoginWithAccount());
+        google.setOnClickListener(v -> LoginWithGoogleClient());
+        phone.setOnClickListener(v -> startActivity(new Intent(AccLoginActivity.this, PhoneLoginActivity.class)));
     }
 
     private void LoginWithGoogleClient() {
@@ -112,11 +95,11 @@ public class AccLoginActivity extends AppCompatActivity {
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                Log.d("GOOGLE LOGIN:", "firebaseAuthWithGoogle:" + account.getId());
+//                Log.d("GOOGLE LOGIN:", "firebaseAuthWithGoogle:" + account.getId());
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                Log.w("GOOGLE LOGIN", "Google sign failed", e);
+//                Log.w("GOOGLE LOGIN", "Google sign failed", e);
                 Toast.makeText(getApplicationContext(), "Google login failed!", Toast.LENGTH_LONG).show();
                 acclogin.setVisibility(View.VISIBLE);
             }
@@ -126,21 +109,18 @@ public class AccLoginActivity extends AppCompatActivity {
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         auth.signInWithCredential(credential)
-            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d("GOOGLE LOGIN", "signInWithCredential:success");
-                        FirebaseUser user = auth.getCurrentUser();
-                        //Start intent here
-                        StartMainScreen();
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w("GOOGLE LOGIN", "signInWithCredential:failure", task.getException());
-                        Toast.makeText(getApplicationContext(), "Signin with credential failed!", Toast.LENGTH_LONG).show();
-                        acclogin.setVisibility(View.VISIBLE);
-                    }
+            .addOnCompleteListener(this, task -> {
+                if (task.isSuccessful()) {
+                    // Sign in success, update UI with the signed-in user's information
+//                        Log.d("GOOGLE LOGIN", "signInWithCredential:success");
+                    FirebaseUser user = auth.getCurrentUser();
+                    //Start intent here
+                    StartMainScreen();
+                } else {
+                    // If sign in fails, display a message to the user.
+//                        Log.w("GOOGLE LOGIN", "signInWithCredential:failure", task.getException());
+                    Toast.makeText(getApplicationContext(), "Signin with credential failed!", Toast.LENGTH_LONG).show();
+                    acclogin.setVisibility(View.VISIBLE);
                 }
             });
     }

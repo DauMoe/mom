@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         super.onStart();
         db.collection(USERS)
                 .whereEqualTo("uniqueID", user.getEmail())
+                .limit(1)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

@@ -1,24 +1,15 @@
 package com.example.mom.Module;
 
 public class Bill {
-    private int ID;
-    private String company, name, amount;
+    private String company, name, amount, billID;
     private Long time;
 
-    public Bill(int ID, String company, String name, String amount, Long time) {
-        this.ID = ID;
+    public Bill(String company, String name, String amount, String billID, Long time) {
         this.company = company;
         this.name = name;
         this.amount = amount;
+        this.billID = billID;
         this.time = time;
-    }
-
-    public int getID() {
-        return ID;
-    }
-
-    public void setID(int ID) {
-        this.ID = ID;
     }
 
     public String getCompany() {
@@ -43,6 +34,14 @@ public class Bill {
 
     public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    public String getBillID() {
+        return billID;
+    }
+
+    public void setBillID(String billID) {
+        this.billID = billID;
     }
 
     public Long getTime() {
