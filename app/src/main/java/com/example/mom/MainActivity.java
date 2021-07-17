@@ -92,11 +92,15 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             sidebar.close();
             //Start intent
             switch (item.getItemId()) {
-                case R.id.personal_history:
+                case R.id.exchange_history:
                     break;
                 case R.id.group_history:
                     break;
                 case R.id.manager_group:
+                    break;
+                case R.id.change_pin:
+                    break;
+                case R.id.info:
                     break;
             }
             return true;
@@ -105,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         scanQR.setOnClickListener(v -> {
             IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
             intentIntegrator.setPrompt("Tip: Vol up/down to turn on/off flash!");
-            intentIntegrator.setBeepEnabled(true);
+            intentIntegrator.setBeepEnabled(false);
             intentIntegrator.setOrientationLocked(true);
             intentIntegrator.setCaptureActivity(Capture.class);
             intentIntegrator.initiateScan();

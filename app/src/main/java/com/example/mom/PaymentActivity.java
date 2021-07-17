@@ -175,11 +175,13 @@ public class PaymentActivity extends AppCompatActivity {
                                 long remain_amount = Long.valueOf(x.getAmount()) - Long.valueOf(amount);
                                 updateData.clear();
                                 updateData.put("amount", String.valueOf(remain_amount));
-                                db.collection(USERS).document().set(updateData)
+                                db.collection(USERS).document(i.getId()).update(updateData)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-
+                                            //Payment done
+                                            startActivity(new Intent(PaymentActivity.this, MainActivity.class));
+                                            finish();
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
