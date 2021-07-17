@@ -13,4 +13,7 @@
     <string name="item2">Group</string>
     <string name="header_title">Admin1</string>
     <string name="header_text">ad@gmail.com</string>
+
+    <!-- Paymeny -->
+    <string name="payment_amount">Amount</string>
 </resources>

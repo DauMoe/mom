@@ -17,7 +17,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.mom.Login.AccLoginActivity;
-import com.example.mom.Modules.User;
+import com.example.mom.Module.Bill;
+import com.example.mom.Module.User;
 import com.example.mom.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,8 +31,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import static com.example.mom.DefineVars.MOM_BILL;
+import static com.example.mom.DefineVars.USERS;
 
 public class MainActivity extends AppCompatActivity implements DrawerLayout.DrawerListener {
     private ActivityMainBinding binding;
@@ -46,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     Uri avaUrl;
     TextView dpEmail, dpUser;
     ImageView ava;
+    Gson gson = new Gson();
     boolean emailVerified;
 
     @Override
@@ -71,22 +77,17 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     @Override
     protected void onStart() {
         super.onStart();
-        db.collection("users")
+        db.collection(USERS)
                 .whereEqualTo("uniqueID", user.getEmail())
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot i: task.getResult()) {
-                                User x = i.toObject(User.class);
-                                Log.i("ID:", String.valueOf(x.getUniqueID()));
-                            }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot i: task.getResult()) {
+                            User x = i.toObject(User.class);
+                            sidebar_menu.setTitle(x.getAmount() + " " +x.getUnit());
                         }
                     }
                 });
-
-        sidebar_menu.setTitle("20.402.00 VNĐ");
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
         navagationview.setNavigationItemSelectedListener(item -> {
             item.setChecked(true);
@@ -111,10 +112,21 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             intentIntegrator.setCaptureActivity(Capture.class);
             intentIntegrator.initiateScan();
         });
+        signout.setOnClickListener(v -> SignOut());
+    }
 
-        signout.setOnClickListener(v -> {
-            SignOut();
-        });
+    private void handlerQR(IntentResult intentResult) {
+        try {
+            //Convert String to Bill Object
+            Bill x = gson.fromJson(intentResult.getContents(), Bill.class);
+            if (x.getCompany().equals(MOM_BILL)) {
+
+            } else {
+                Toast.makeText(getApplicationContext(), "This is not MoM QR!", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "This is not MoM QR!", Toast.LENGTH_LONG).show();
+        }
     }
 
     //For QRCode Scan
@@ -123,8 +135,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         super.onActivityResult(requestCode, resultCode, data);
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (intentResult.getContents() != null) {
-            Log.w("RESULT: ", intentResult.getContents());
-            Toast.makeText(getApplicationContext(), intentResult.getContents(), Toast.LENGTH_LONG).show();
+            handlerQR(intentResult);
         } else {
             Toast.makeText(getApplicationContext(), "Cancel!", Toast.LENGTH_LONG).show();
         }

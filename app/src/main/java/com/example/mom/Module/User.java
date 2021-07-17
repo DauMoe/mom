@@ -1,4 +1,4 @@
-package com.example.mom.Modules;
+package com.example.mom.Module;
 
 public class User {
     private String username, email, phone, amount, unit, uniqueID, GroupID;
