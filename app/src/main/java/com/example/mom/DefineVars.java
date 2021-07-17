@@ -5,21 +5,22 @@ import java.util.ArrayList;
 public class DefineVars {
     /*
         ================== Doc ==================
-        Material Design             : https://material.io/components/text-fields/android#using-text-fields
-        Login with phone number     : https://firebase.google.com/docs/auth/android/phone-auth
-        Tablayout MDC               : https://www.youtube.com/watch?v=eXK4VMI9XLI (MDC: Material Design Components)
-        Phone authen example        : https://www.youtube.com/watch?v=W8eGh6vKKR8
-        Conver phone number         : https://github.com/google/libphonenumber
-        Navigation Drawer MDC       : https://material.io/components/navigation-drawer/android#bottom-navigation-drawer
-        Glide                       : https://github.com/bumptech/glide
-        Manager User Fbase          : https://firebase.google.com/docs/auth/android/manage-users
-        Databinding                 : https://developer.android.com/topic/libraries/data-binding/expressions
-        Query/Getting firestore     : https://firebase.google.com/docs/firestore/query-data/order-limit-data#java
-        Biometric Authentication    : https://developer.android.com/training/sign-in/biometric-auth
+        Material Design                 : https://material.io/components/text-fields/android#using-text-fields
+        Login with phone number         : https://firebase.google.com/docs/auth/android/phone-auth
+        Tablayout MDC                   : https://www.youtube.com/watch?v=eXK4VMI9XLI (MDC: Material Design Components)
+        Phone authen example            : https://www.youtube.com/watch?v=W8eGh6vKKR8
+        Conver phone number             : https://github.com/google/libphonenumber
+        Navigation Drawer MDC           : https://material.io/components/navigation-drawer/android#bottom-navigation-drawer
+        Glide                           : https://github.com/bumptech/glide
+        Manager User Fbase              : https://firebase.google.com/docs/auth/android/manage-users
+        Databinding                     : https://developer.android.com/topic/libraries/data-binding/expressions
+        Query/Getting firestore         : https://firebase.google.com/docs/firestore/query-data/order-limit-data#java
+        Biometric Authentication        : https://developer.android.com/training/sign-in/biometric-auth
 
         ================== Note =================
-        platform-tools              : %LOCALAPPDATA%\Android\Sdk\platform-tools
-        zXing beep crash fix        : https://github.com/zxing/zxing/issues/775
+        platform-tools                  : %LOCALAPPDATA%\Android\Sdk\platform-tools
+        zXing beep crash fix            : https://github.com/zxing/zxing/issues/775
+        Compare List Object by fields   : https://www.codebyamir.com/blog/sort-list-of-objects-by-field-java
 
     */
 

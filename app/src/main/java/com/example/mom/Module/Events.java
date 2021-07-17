@@ -1,6 +1,6 @@
 package com.example.mom.Module;
 
-public class Events {
+public class Events implements  Comparable<Events>{
     private String amount, billID, uniqueID, unit, from;
     private boolean earnings;
     private long time;
@@ -82,5 +82,13 @@ public class Events {
 
     public void setGroupID(int groupID) {
         this.groupID = groupID;
+    }
+
+    @Override
+    public int compareTo(Events o) {
+        if (getTime() == 0 || o.getTime() == 0) {
+            return 0;
+        }
+        return Long.valueOf(getTime()).compareTo(Long.valueOf(o.getTime()));
     }
 }

@@ -38,6 +38,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.example.mom.DefineVars.MOM_BILL;
@@ -103,43 +104,16 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     }
                 }
             });
-        db.collection(PAYMENT_EVENTS)
-            .whereEqualTo("uniqueID", user.getEmail())
-//            .orderBy("time", Query.Direction.DESCENDING)
-            .get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    data.clear();
-                    for (QueryDocumentSnapshot i: task.getResult()) {
-                        Events x = i.toObject(Events.class);
-                        data.add(x);
-                    }
-                    adapter.setData(data);
-                    if (data.size() > 0) {
-                        binding.emptyInvoice.setVisibility(View.GONE);
-                        binding.exchangeRcv.setVisibility(View.VISIBLE);
-                    } else {
-                        binding.emptyInvoice.setVisibility(View.VISIBLE);
-                        binding.exchangeRcv.setVisibility(View.GONE);
-                    }
-                }
-            });
+        GetInvoiceData();
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
         navagationview.setNavigationItemSelectedListener(item -> {
             item.setChecked(true);
             sidebar.close();
             //Start intent
             switch (item.getItemId()) {
-//                case R.id.exchange_history:
-//                    break;
-//                case R.id.group_history:
-//                    break;
-//                case R.id.manager_group:
-//                    break;
-//                case R.id.change_pin:
-//                    break;
-//                case R.id.info:
-//                    break;
+                case R.id.exchange_history:
+                    GetInvoiceData();
+                    break;
             }
             return true;
         });
@@ -153,6 +127,30 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             intentIntegrator.initiateScan();
         });
         signout.setOnClickListener(v -> SignOut());
+    }
+
+    private void GetInvoiceData() {
+        db.collection(PAYMENT_EVENTS)
+            .whereEqualTo("uniqueID", user.getEmail())
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    data.clear();
+                    for (QueryDocumentSnapshot i: task.getResult()) {
+                        Events x = i.toObject(Events.class);
+                        data.add(x);
+                    }
+                    if (data.size() > 0) {
+                        binding.emptyInvoice.setVisibility(View.GONE);
+                        binding.exchangeRcv.setVisibility(View.VISIBLE);
+                        Collections.sort(data); //sort by timestamp
+                    } else {
+                        binding.emptyInvoice.setVisibility(View.VISIBLE);
+                        binding.exchangeRcv.setVisibility(View.GONE);
+                    }
+                    adapter.setData(data);
+                }
+            });
     }
 
     private void handlerQR(IntentResult intentResult) {
