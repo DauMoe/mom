@@ -31,8 +31,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.Executor;
 
-import static com.example.mom.DefineVars.PAYMENT_EVENTS;
-import static com.example.mom.DefineVars.USERS;
+import static com.example.mom.DefineVars.*;
 
 public class AddMoneyActivity extends AppCompatActivity {
     private ActivityAddMoneyBinding binding;
@@ -140,14 +139,6 @@ public class AddMoneyActivity extends AppCompatActivity {
                 });
     }
 
-    private String AutoGenBillID() {
-        String x = "IN";
-        for (int i=0; i<3; i++) {
-            x += "-"+g.nextInt(900);
-        }
-        return x;
-    }
-
     private void updateAmount() {
         db.collection(USERS)
             .whereEqualTo("uniqueID", user.getUid())
@@ -171,7 +162,8 @@ public class AddMoneyActivity extends AppCompatActivity {
                                     updateData.put("unit", "VND");
                                     updateData.put("groupID", 0);
                                     updateData.put("from", "Bank account");
-                                    updateData.put("billID", AutoGenBillID());
+                                    updateData.put("amount", Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())));
+                                    updateData.put("billID", GenBillID("IN"));
                                     db.collection(PAYMENT_EVENTS).document().set(updateData);
                                     //Payment done
                                     startActivity(new Intent(AddMoneyActivity.this, MainActivity.class));

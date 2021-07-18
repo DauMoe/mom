@@ -46,8 +46,9 @@ public class PaymentActivity extends AppCompatActivity {
     Gson gson = new Gson();
     FirebaseFirestore db;
     FirebaseUser user;
-    String amount;
+    long amount;
     HashMap<String, Object> updateData = new HashMap<>();
+    Invoice payment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +65,7 @@ public class PaymentActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Intent payment_intent   = getIntent();
-        Invoice payment         = (Invoice) payment_intent.getSerializableExtra(PAYMENT_INFO);
+        payment                 = (Invoice) payment_intent.getSerializableExtra(PAYMENT_INFO);
         amount                  = payment.getAmount();
         calendar.setTimeInMillis(payment.getTime());
 
@@ -113,10 +114,10 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void AuthenWithPassword() {
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View v = inflater.inflate(R.layout.password_dialog, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        TextInputLayout password = v.findViewById(R.id.pin_authen);
+        LayoutInflater inflater         = LayoutInflater.from(this);
+        View v                          = inflater.inflate(R.layout.password_dialog, null);
+        AlertDialog.Builder builder     = new AlertDialog.Builder(this);
+        TextInputLayout password        = v.findViewById(R.id.pin_authen);
         builder.setView(v);
         db.collection(USERS)
             .whereEqualTo("uniqueID", user.getUid())
@@ -179,6 +180,16 @@ public class PaymentActivity extends AppCompatActivity {
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
+                                        updateData.clear();
+                                        updateData.put("earning", false);
+                                        updateData.put("time", Calendar.getInstance().getTimeInMillis());
+                                        updateData.put("uniqueID", user.getUid());
+                                        updateData.put("unit", "VND");
+                                        updateData.put("groupID", 0);
+                                        updateData.put("from", payment.getFrom());
+                                        updateData.put("amount", amount);
+                                        updateData.put("billID", GenBillID("RF"));
+                                        db.collection(PAYMENT_EVENTS).document().set(updateData);
                                         //Payment done
                                         startActivity(new Intent(PaymentActivity.this, MainActivity.class));
                                         finish();

@@ -3,17 +3,20 @@ package com.example.mom.Module;
 import java.io.Serializable;
 
 public class Invoice implements Serializable {
-    private String company, from, amount, billID, unit;
-    private Long time, total;
+    private String company, from, billID, unit;
+    private Long time, total, amount;
 
-    public Invoice(String company, String from, String amount, String billID, String unit, Long time, Long total) {
+    public Invoice() {
+    }
+
+    public Invoice(String company, String from, String billID, String unit, Long time, Long total, Long amount) {
         this.company = company;
         this.from = from;
-        this.amount = amount;
         this.billID = billID;
         this.unit = unit;
         this.time = time;
         this.total = total;
+        this.amount = amount;
     }
 
     public String getCompany() {
@@ -30,14 +33,6 @@ public class Invoice implements Serializable {
 
     public void setFrom(String from) {
         this.from = from;
-    }
-
-    public String getAmount() {
-        return amount;
-    }
-
-    public void setAmount(String amount) {
-        this.amount = amount;
     }
 
     public String getBillID() {
@@ -70,5 +65,13 @@ public class Invoice implements Serializable {
 
     public void setTotal(Long total) {
         this.total = total;
+    }
+
+    public Long getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Long amount) {
+        this.amount = amount;
     }
 }
