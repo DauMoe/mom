@@ -166,6 +166,7 @@ public class AddMoneyActivity extends AppCompatActivity {
                                     updateData.put("billID", GenBillID("IN"));
                                     db.collection(PAYMENT_EVENTS).document().set(updateData);
                                     //Payment done
+                                    Toast.makeText(getApplicationContext(), "Update amount successful!", Toast.LENGTH_LONG).show();
                                     startActivity(new Intent(AddMoneyActivity.this, MainActivity.class));
                                     finish();
                                 }
