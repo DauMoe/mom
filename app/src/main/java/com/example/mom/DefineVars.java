@@ -38,7 +38,9 @@ public class DefineVars {
     //============== Intent ==============
     public static final String PAYMENT_INFO     = "payment_info";
     public static final String MOM_BILL         = "mom";
-    private static Random g = new Random();
+
+    //============== Gen Bill ID ==============
+    private static Random g                     = new Random();
 
     public static String GenBillID(String pre) {
         String x = pre;
