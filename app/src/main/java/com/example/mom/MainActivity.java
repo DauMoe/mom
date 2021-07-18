@@ -103,17 +103,21 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
                 }
             });
-        GetInvoiceData(false);
+        GetInvoiceData();
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
         navagationview.setNavigationItemSelectedListener(item -> {
             item.setChecked(true);
             sidebar.close();
             //Start intent
             switch (item.getItemId()) {
+                case R.id.add_money:
+                    startActivity(new Intent(MainActivity.this, AddMoneyActivity.class));
+                    break;
                 case R.id.exchange_history:
-                    GetInvoiceData(false);
+                    GetInvoiceData();
                     break;
                 case R.id.group_history:
+                    startActivity(new Intent(MainActivity.this, GroupExchangeActivity.class));
                     break;
             }
             return true;
@@ -129,49 +133,30 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         signout.setOnClickListener(v -> SignOut());
     }
 
-    private void GetInvoiceData(boolean isGroup) {
-        if (isGroup) {
-//            db.collection(PAYMENT_EVENTS)
-//                    .whereArrayContains("list_user", user.getUid())
-//                    .get()
-//                    .addOnCompleteListener(task -> {
-//                        if (task.isSuccessful()) {
-//                            for (QueryDocumentSnapshot i: task.getResult()) {
-//                                GroupUsers x = i.toObject(GroupUsers.class);
-//
-//                            }
-//                        } else {
-//                            Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
-//                        }
-//                    })
-//                    .addOnFailureListener(task -> {
-//
-//                    });
-        } else {
-            db.collection(PAYMENT_EVENTS)
-                    .whereEqualTo("uniqueID", userID)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            data.clear();
-                            for (QueryDocumentSnapshot i: task.getResult()) {
-                                Events x = i.toObject(Events.class);
-                                data.add(x);
-                            }
-                            if (data.size() > 0) {
-                                binding.emptyInvoice.setVisibility(View.GONE);
-                                binding.exchangeRcv.setVisibility(View.VISIBLE);
-                                Collections.reverse(data); //sort by timestamp
-                            } else {
-                                binding.emptyInvoice.setVisibility(View.VISIBLE);
-                                binding.exchangeRcv.setVisibility(View.GONE);
-                            }
-                            adapter.setData(data);
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
+    private void GetInvoiceData() {
+        db.collection(PAYMENT_EVENTS)
+                .whereEqualTo("uniqueID", userID)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        data.clear();
+                        for (QueryDocumentSnapshot i: task.getResult()) {
+                            Events x = i.toObject(Events.class);
+                            data.add(x);
                         }
-                    });
-        }
+                        if (data.size() > 0) {
+                            binding.emptyInvoice.setVisibility(View.GONE);
+                            binding.exchangeRcv.setVisibility(View.VISIBLE);
+                            Collections.reverse(data); //sort by timestamp
+                        } else {
+                            binding.emptyInvoice.setVisibility(View.VISIBLE);
+                            binding.exchangeRcv.setVisibility(View.GONE);
+                        }
+                        adapter.setData(data);
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private void handlerQR(IntentResult intentResult) {

@@ -174,7 +174,7 @@ public class PaymentActivity extends AppCompatActivity {
                         if (Long.valueOf(x.getAmount()) >= Long.valueOf(amount)) {
                             long remain_amount = Long.valueOf(x.getAmount()) - Long.valueOf(amount);
                             updateData.clear();
-                            updateData.put("amount", String.valueOf(remain_amount));
+                            updateData.put("amount", remain_amount);
                             db.collection(USERS).document(i.getId()).update(updateData)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override

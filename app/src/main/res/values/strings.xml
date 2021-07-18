@@ -17,6 +17,7 @@
     <!-- Paymeny -->
     <string name="payment_amount">Amount</string>
     <string name="password_dialog">Enter your PIN</string>
+    <string name="rechange">Enter amount:</string>
 
     <!-- Events item -->
     <string name="invoice_id">INVOICE:</string>
