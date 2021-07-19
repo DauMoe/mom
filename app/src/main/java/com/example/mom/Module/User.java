@@ -1,22 +1,21 @@
 package com.example.mom.Module;
 
 public class User {
-    private String username, email, phone, unit, uniqueID, GroupID, PIN, address, sex, dob;
+    private String username, email, phone, unit, uniqueID, PIN, address, gender, dob;
     private long amount;
 
     public User() {
     }
 
-    public User(String username, String email, String phone, String unit, String uniqueID, String groupID, String PIN, String address, String sex, String dob, long amount) {
+    public User(String username, String email, String phone, String unit, String uniqueID, String PIN, String address, String gender, String dob, long amount) {
         this.username = username;
         this.email = email;
         this.phone = phone;
         this.unit = unit;
         this.uniqueID = uniqueID;
-        GroupID = groupID;
         this.PIN = PIN;
         this.address = address;
-        this.sex = sex;
+        this.gender = gender;
         this.dob = dob;
         this.amount = amount;
     }
@@ -61,14 +60,6 @@ public class User {
         this.uniqueID = uniqueID;
     }
 
-    public String getGroupID() {
-        return GroupID;
-    }
-
-    public void setGroupID(String groupID) {
-        GroupID = groupID;
-    }
-
     public String getPIN() {
         return PIN;
     }
@@ -85,12 +76,12 @@ public class User {
         this.address = address;
     }
 
-    public String getSex() {
-        return sex;
+    public String getGender() {
+        return gender;
     }
 
-    public void setSex(String sex) {
-        this.sex = sex;
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getDob() {

@@ -119,8 +119,11 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 case R.id.group_history:
                     startActivity(new Intent(MainActivity.this, GroupExchangeActivity.class));
                     break;
-                case R.id.change_pin:
+                case R.id.change_pins:
                     startActivity(new Intent(MainActivity.this, Change_pinActivity.class));
+                    break;
+                case R.id.info:
+                    startActivity(new Intent(MainActivity.this, UpdateInfoActivity.class));
                     break;
             }
             return true;

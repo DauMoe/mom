@@ -41,7 +41,7 @@
             <item
                 android:title="Personal">
                 <item
-                    android:id="@+id/change_pin"
+                    android:id="@+id/change_pins"
                     android:icon="@drawable/ic_numpad"
                     android:title="Change PIN"/>
                 <item
