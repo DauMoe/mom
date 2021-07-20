@@ -105,43 +105,8 @@ public class AddMoneyActivity extends AppCompatActivity {
 
     private void AuthenWithPassword() {
         FragmentManager fm          = getSupportFragmentManager();
-        CustomDialog customDialog   = new CustomDialog(Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())), user.getUid());
+        CustomDialog customDialog   = new CustomDialog(Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())), user.getUid(), true);
         customDialog.show(fm, "");
-//        LayoutInflater inflater = LayoutInflater.from(this);
-//        View v = inflater.inflate(R.layout.password_dialog, null);
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        TextInputLayout password = v.findViewById(R.id.pin_authen);
-//        builder.setView(v);
-//        db.collection(USERS)
-//                .whereEqualTo("uniqueID", user.getUid())
-//                .limit(1)
-//                .get()
-//                .addOnCompleteListener(task -> {
-//                    if (task.isSuccessful()) {
-//                        for (QueryDocumentSnapshot i: task.getResult()) {
-//                            User x = i.toObject(User.class);
-//                            builder.setCancelable(true)
-//                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                                        @Override
-//                                        public void onClick(DialogInterface dialog, int which) {
-//                                            if (password.getEditText().getText().toString().equals(x.getPIN())) {
-//                                                updateAmount();
-//                                            } else {
-//                                                Toast.makeText(getApplicationContext(), "Password invalid", Toast.LENGTH_LONG).show();
-//                                            }
-//                                        }
-//                                    })
-//                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                                        @Override
-//                                        public void onClick(DialogInterface dialog, int which) {
-//                                            dialog.cancel();
-//                                        }
-//                                    });
-//                            AlertDialog dialog = builder.create();
-//                            dialog.show();
-//                        }
-//                    }
-//                });
     }
 
     private void updateAmount() {
