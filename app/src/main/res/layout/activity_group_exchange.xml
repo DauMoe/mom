@@ -1,37 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <GridView
-        android:id="@+id/group_user"
-        android:numColumns="2"
-        android:layout_margin="10dp"
-        android:stretchMode="columnWidth"
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+    </data>
+
+    <LinearLayout
+        android:layout_marginTop="18dp"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-<!--        <com.google.android.material.card.MaterialCardView-->
-<!--            android:layout_weight="1"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content">-->
-<!--            <LinearLayout-->
-<!--                android:orientation="vertical"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent">-->
-<!--                <com.google.android.material.textview.MaterialTextView-->
-<!--                    android:id="@+id/item1_display"-->
-<!--                    android:text="User: User1"-->
-<!--                    android:fontFamily="@font/poppins_bold"-->
-<!--                    android:textColor="@color/black"-->
-<!--                    android:textSize="18dp"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"/>-->
-<!--                <com.google.android.material.textview.MaterialTextView-->
-<!--                    android:id="@+id/item1_amount"-->
-<!--                    android:text="Balance: 20.000 VND"-->
-<!--                    android:fontFamily="@font/poppins_medium"-->
-<!--                    android:textColor="@color/black"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"/>-->
-<!--            </LinearLayout>-->
-<!--        </com.google.android.material.card.MaterialCardView>-->
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/back"
+                android:src="@drawable/ic_back"
+                android:layout_margin="10dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/user_detail"
+                android:text="Admin1"
+                android:layout_marginLeft="10dp"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/black"
+                android:textSize="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/no_detail_exchange"
+            android:text="No exchange for this user!"
+            android:gravity="center"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@color/black"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/detail_rcv"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</layout>

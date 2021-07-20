@@ -22,6 +22,7 @@ public class DefineVars {
         platform-tools                  : %LOCALAPPDATA%\Android\Sdk\platform-tools
         zXing beep crash fix            : https://github.com/zxing/zxing/issues/775
         Compare List Object by fields   : https://www.codebyamir.com/blog/sort-list-of-objects-by-field-java
+        GridView                        : https://openplanning.net/10473/android-gridview
 
     */
 
@@ -38,6 +39,7 @@ public class DefineVars {
     //============== Intent ==============
     public static final String PAYMENT_INFO     = "payment_info";
     public static final String MOM_BILL         = "mom";
+    public static final String DETAIL_PAYMENTS  = "detail_info";
 
     //============== Gen Bill ID ==============
     private static Random g                     = new Random();

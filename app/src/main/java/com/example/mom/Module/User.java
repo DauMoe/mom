@@ -1,6 +1,8 @@
 package com.example.mom.Module;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     private String username, email, phone, unit, uniqueID, PIN, address, gender, dob;
     private long amount;
 

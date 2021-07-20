@@ -21,7 +21,7 @@
 <!--            </intent-filter>-->
         </activity>
         <activity android:name=".Change_pinActivity" />
-        <activity android:name=".GroupExchangeActivity" />
+        <activity android:name=".DetailUserPaymentEventsActivity" />
         <activity android:name=".AddMoneyActivity" />
         <activity android:name=".PaymentActivity" />
         <activity android:name=".MainActivity" />

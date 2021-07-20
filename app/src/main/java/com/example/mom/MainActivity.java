@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -95,6 +96,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false);
         binding.exchangeRcv.setLayoutManager(manager);
         binding.exchangeRcv.setAdapter(adapter);
+
+        //Init Data
+        GetInvoiceData();
     }
 
     private void ChangeMode(boolean isGroupUserMode, int size) {
@@ -132,9 +136,11 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
                 }
             });
-        GetInvoiceData();
-//        GroupUserView();
+
+        //Open sidebar when onclick sidebar icon
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
+
+        //Set onclick event in menu sidebar
         navagationview.setNavigationItemSelectedListener(item -> {
             item.setChecked(true);
             sidebar.close();
@@ -158,6 +164,18 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             }
             return true;
         });
+
+        binding.groupUser.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                User x = users.get(position);
+                Intent DetailUserPaymentEvents = new Intent(MainActivity.this, DetailUserPaymentEventsActivity.class);
+                DetailUserPaymentEvents.putExtra(DETAIL_PAYMENTS, x);
+                startActivity(DetailUserPaymentEvents);
+            }
+        });
+
+        //Set onclick FAB events
         scanQR.setOnClickListener(v -> {
             IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
             intentIntegrator.setPrompt("Tip: Vol up/down to turn on/off flash!");
