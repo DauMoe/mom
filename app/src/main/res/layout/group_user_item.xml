@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:orientation="vertical"
-    android:layout_margin="7dp"
+    android:layout_margin="15dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android">
@@ -8,7 +8,7 @@
         android:id="@+id/ava"
         android:src="@drawable/default_ava"
         android:layout_width="match_parent"
-        android:layout_height="200dp"/>
+        android:layout_height="120dp"/>
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/user_display"
         android:layout_marginTop="8dp"

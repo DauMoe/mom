@@ -64,7 +64,7 @@ public class GroupUserAdapter extends BaseAdapter {
         User x = data.get(position);
 //        Glide.with(context).load().into(v.ava);
         v.user_display.setText((x.getEmail() != null)? x.getEmail() : x.getPhone());
-        v.user_balance.setText(String.valueOf(x.getAmount()));
+        v.user_balance.setText("Balance:" +x.getAmount() + x.getUnit());
         return convertView;
     }
 

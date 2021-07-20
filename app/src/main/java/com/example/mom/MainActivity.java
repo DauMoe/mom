@@ -1,5 +1,6 @@
 package com.example.mom;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     String displayName, displayEmail, userID;
     Uri avaUrl;
     TextView dpEmail, dpUser;
-    GridView gridView;
+    ProgressDialog progressDialog;
     ImageView ava;
     Gson gson = new Gson();
     ExchangeAdapter adapter;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         displayName                 = user.getDisplayName();
         displayEmail                = user.getEmail();
         groupUseradapter            = new GroupUserAdapter(getApplicationContext());
+        progressDialog              = new ProgressDialog(this);
         sidebar.setDrawerListener(this);
         binding.groupUser.setAdapter(groupUseradapter);
 
@@ -93,16 +95,23 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false);
         binding.exchangeRcv.setLayoutManager(manager);
         binding.exchangeRcv.setAdapter(adapter);
-        ChangeMode(false);
     }
 
-    private void ChangeMode(boolean isGroupUserMode) {
-        if (isGroupUserMode) {
-            binding.groupUser.setVisibility(View.VISIBLE);
-            binding.exchangeRcv.setVisibility(View.GONE);
-        } else {
+    private void ChangeMode(boolean isGroupUserMode, int size) {
+        if (size == 0) {
             binding.groupUser.setVisibility(View.GONE);
-            binding.exchangeRcv.setVisibility(View.VISIBLE);
+            binding.exchangeRcv.setVisibility(View.GONE);
+            binding.emptyInvoice.setText(isGroupUserMode ? "No group!" : "No exchange!");
+            binding.emptyInvoice.setVisibility(View.VISIBLE);
+        } else {
+            binding.emptyInvoice.setVisibility(View.GONE);
+            if (isGroupUserMode) {
+                binding.groupUser.setVisibility(View.VISIBLE);
+                binding.exchangeRcv.setVisibility(View.GONE);
+            } else {
+                binding.groupUser.setVisibility(View.GONE);
+                binding.exchangeRcv.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -124,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 }
             });
         GetInvoiceData();
+//        GroupUserView();
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
         navagationview.setNavigationItemSelectedListener(item -> {
             item.setChecked(true);
@@ -137,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     GetInvoiceData();
                     break;
                 case R.id.group_history:
-//                    startActivity(new Intent(MainActivity.this, GroupExchangeActivity.class));
                     GroupUserView();
                     break;
                 case R.id.change_pins:
@@ -161,7 +170,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
     private void GroupUserView() {
-        ChangeMode(true);
+        progressDialog.setMessage("Waiting...");
+        progressDialog.show();
         db.collection(GROUP_USERS)
             .whereArrayContains("members", userID)
             .limit(1)
@@ -178,12 +188,14 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                         @Override
                                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                            progressDialog.dismiss();
                                             for (QueryDocumentSnapshot g: queryDocumentSnapshots) {
                                                 users.add(g.toObject(User.class));
                                                 if (users.size() == x.getMembers().size()) {
                                                     //Get all users
                                                     groupUseradapter.setData(users);
                                                 }
+                                                ChangeMode(true, users.size());
                                             }
                                         }
                                     })
@@ -200,25 +212,21 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
     private void GetInvoiceData() {
-        ChangeMode(false);
+        progressDialog.setMessage("Waiting...");
+        progressDialog.show();
         db.collection(PAYMENT_EVENTS)
                 .whereEqualTo("uniqueID", userID)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         data.clear();
+                        progressDialog.dismiss();
                         for (QueryDocumentSnapshot i: task.getResult()) {
                             Events x = i.toObject(Events.class);
                             data.add(x);
                         }
-                        if (data.size() > 0) {
-                            binding.emptyInvoice.setVisibility(View.GONE);
-                            binding.exchangeRcv.setVisibility(View.VISIBLE);
-                            Collections.reverse(data); //sort by timestamp
-                        } else {
-                            binding.emptyInvoice.setVisibility(View.VISIBLE);
-                            binding.exchangeRcv.setVisibility(View.GONE);
-                        }
+                        ChangeMode(false, data.size());
+                        Collections.reverse(data); //sort by timestamp
                         adapter.setData(data);
                     } else {
                         Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
