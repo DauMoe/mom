@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,12 +21,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.mom.Adapter.ExchangeAdapter;
+import com.example.mom.Adapter.GroupUserAdapter;
 import com.example.mom.Login.AccLoginActivity;
 import com.example.mom.Module.Events;
 import com.example.mom.Module.GroupUsers;
 import com.example.mom.Module.Invoice;
 import com.example.mom.Module.User;
 import com.example.mom.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -58,9 +62,12 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     String displayName, displayEmail, userID;
     Uri avaUrl;
     TextView dpEmail, dpUser;
+    GridView gridView;
     ImageView ava;
     Gson gson = new Gson();
     ExchangeAdapter adapter;
+    GroupUserAdapter groupUseradapter;
+    List<User> users = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +84,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         avaUrl                      = user.getPhotoUrl();
         displayName                 = user.getDisplayName();
         displayEmail                = user.getEmail();
+        groupUseradapter            = new GroupUserAdapter(getApplicationContext());
         sidebar.setDrawerListener(this);
+        binding.groupUser.setAdapter(groupUseradapter);
 
         //Recycleview init
         adapter                     = new ExchangeAdapter(getApplicationContext());
@@ -162,7 +171,29 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                     for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
                         GroupUsers x = i.toObject(GroupUsers.class);
-                        Log.i("RESULT", i.toString());
+                        sidebar_menu.setTitle(x.getName());
+                        users.clear();
+                        for (String f: x.getMembers()) {
+                            db.collection(USERS).whereEqualTo("uniqueID", f).limit(1).get()
+                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                            for (QueryDocumentSnapshot g: queryDocumentSnapshots) {
+                                                users.add(g.toObject(User.class));
+                                                if (users.size() == x.getMembers().size()) {
+                                                    //Get all users
+                                                    groupUseradapter.setData(users);
+                                                }
+                                            }
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                        }
                     }
                 }
             });
