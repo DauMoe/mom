@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical"
+    android:layout_margin="7dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView
+        android:id="@+id/ava"
+        android:src="@drawable/default_ava"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"/>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/user_display"
+        android:layout_marginTop="8dp"
+        android:text="User1"
+        android:fontFamily="@font/poppins_bold"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/user_balance"
+        android:layout_marginTop="10dp"
+        android:text="100000 VND"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</LinearLayout>

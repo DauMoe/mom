@@ -52,6 +52,13 @@
                 android:layout_marginTop="85dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+            <GridView
+                android:id="@+id/group_user"
+                android:numColumns="2"
+                android:layout_margin="10dp"
+                android:stretchMode="columnWidth"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
             <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navagationview"

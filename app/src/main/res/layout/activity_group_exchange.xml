@@ -1,9 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GroupExchangeActivity">
-
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <GridView
+        android:id="@+id/group_user"
+        android:numColumns="2"
+        android:layout_margin="10dp"
+        android:stretchMode="columnWidth"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+<!--        <com.google.android.material.card.MaterialCardView-->
+<!--            android:layout_weight="1"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content">-->
+<!--            <LinearLayout-->
+<!--                android:orientation="vertical"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent">-->
+<!--                <com.google.android.material.textview.MaterialTextView-->
+<!--                    android:id="@+id/item1_display"-->
+<!--                    android:text="User: User1"-->
+<!--                    android:fontFamily="@font/poppins_bold"-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:textSize="18dp"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"/>-->
+<!--                <com.google.android.material.textview.MaterialTextView-->
+<!--                    android:id="@+id/item1_amount"-->
+<!--                    android:text="Balance: 20.000 VND"-->
+<!--                    android:fontFamily="@font/poppins_medium"-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"/>-->
+<!--            </LinearLayout>-->
+<!--        </com.google.android.material.card.MaterialCardView>-->
 </androidx.constraintlayout.widget.ConstraintLayout>

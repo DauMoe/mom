@@ -25,6 +25,7 @@ import com.example.mom.Module.GroupUsers;
 import com.example.mom.Module.Invoice;
 import com.example.mom.Module.User;
 import com.example.mom.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -32,7 +33,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
@@ -84,6 +84,17 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false);
         binding.exchangeRcv.setLayoutManager(manager);
         binding.exchangeRcv.setAdapter(adapter);
+        ChangeMode(false);
+    }
+
+    private void ChangeMode(boolean isGroupUserMode) {
+        if (isGroupUserMode) {
+            binding.groupUser.setVisibility(View.VISIBLE);
+            binding.exchangeRcv.setVisibility(View.GONE);
+        } else {
+            binding.groupUser.setVisibility(View.GONE);
+            binding.exchangeRcv.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -117,7 +128,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     GetInvoiceData();
                     break;
                 case R.id.group_history:
-                    startActivity(new Intent(MainActivity.this, GroupExchangeActivity.class));
+//                    startActivity(new Intent(MainActivity.this, GroupExchangeActivity.class));
+                    GroupUserView();
                     break;
                 case R.id.change_pins:
                     startActivity(new Intent(MainActivity.this, Change_pinActivity.class));
@@ -139,7 +151,25 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         signout.setOnClickListener(v -> SignOut());
     }
 
+    private void GroupUserView() {
+        ChangeMode(true);
+        db.collection(GROUP_USERS)
+            .whereArrayContains("members", userID)
+            .limit(1)
+            .get()
+            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                        GroupUsers x = i.toObject(GroupUsers.class);
+                        Log.i("RESULT", i.toString());
+                    }
+                }
+            });
+    }
+
     private void GetInvoiceData() {
+        ChangeMode(false);
         db.collection(PAYMENT_EVENTS)
                 .whereEqualTo("uniqueID", userID)
                 .get()
