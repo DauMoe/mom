@@ -19,6 +19,8 @@
     <string name="password_dialog">Enter your PIN</string>
     <string name="rechange">Enter amount:</string>
 
+    <string name="invite_code">User ID</string>
+
     <!-- Events item -->
     <string name="invoice_id">INVOICE:</string>
     <string name="paid_by">From:</string>

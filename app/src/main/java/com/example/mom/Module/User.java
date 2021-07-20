@@ -3,7 +3,7 @@ package com.example.mom.Module;
 import java.io.Serializable;
 
 public class User implements Serializable {
-    private String username, email, phone, unit, uniqueID, PIN, address, gender, dob;
+    private String username, email, phone, unit, uniqueID, pin, address, gender, dob;
     private long amount;
 
     public User() {
@@ -15,7 +15,7 @@ public class User implements Serializable {
         this.phone = phone;
         this.unit = unit;
         this.uniqueID = uniqueID;
-        this.PIN = PIN;
+        this.pin = PIN;
         this.address = address;
         this.gender = gender;
         this.dob = dob;
@@ -63,11 +63,11 @@ public class User implements Serializable {
     }
 
     public String getPIN() {
-        return PIN;
+        return pin;
     }
 
     public void setPIN(String PIN) {
-        this.PIN = PIN;
+        this.pin = PIN;
     }
 
     public String getAddress() {

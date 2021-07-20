@@ -1,10 +1,15 @@
 package com.example.mom;
 
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -15,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -34,10 +40,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -70,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     ExchangeAdapter adapter;
     GroupUserAdapter groupUseradapter;
     List<User> users = new ArrayList<>();
+    View add;
+    String grID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         displayEmail                = user.getEmail();
         groupUseradapter            = new GroupUserAdapter(getApplicationContext());
         progressDialog              = new ProgressDialog(this);
+        add                         = findViewById(R.id.add_gr);
         sidebar.setDrawerListener(this);
         binding.groupUser.setAdapter(groupUseradapter);
 
@@ -99,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
         //Init Data
         GetInvoiceData();
+        add.setVisibility(View.GONE);
     }
 
     private void ChangeMode(boolean isGroupUserMode, int size) {
@@ -122,56 +135,76 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     @Override
     protected void onStart() {
         super.onStart();
-        db.collection(USERS)
-            .whereEqualTo("uniqueID", userID)
-            .limit(1)
-            .get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot i: task.getResult()) {
-                        User x = i.toObject(User.class);
-                        sidebar_menu.setTitle("Balance: "+x.getAmount() + " " +x.getUnit());
-                    }
-                } else {
-                    Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
-                }
-            });
-
         //Open sidebar when onclick sidebar icon
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
 
+        add.setOnClickListener(v -> AddUsertoGroup());
+
         //Set onclick event in menu sidebar
         navagationview.setNavigationItemSelectedListener(item -> {
-            item.setChecked(true);
             sidebar.close();
             //Start intent
             switch (item.getItemId()) {
                 case R.id.add_money:
+                    item.setChecked(true);
                     startActivity(new Intent(MainActivity.this, AddMoneyActivity.class));
                     break;
                 case R.id.exchange_history:
+                    item.setChecked(true);
+                    add.setVisibility(View.GONE);
                     GetInvoiceData();
                     break;
                 case R.id.group_history:
+                    item.setChecked(true);
+                    add.setVisibility(View.VISIBLE);
                     GroupUserView();
                     break;
                 case R.id.change_pins:
+                    item.setChecked(true);
                     startActivity(new Intent(MainActivity.this, Change_pinActivity.class));
                     break;
                 case R.id.info:
+                    item.setChecked(true);
                     startActivity(new Intent(MainActivity.this, UpdateInfoActivity.class));
+                    break;
+                case R.id.share:
+                    CopyUserID();
                     break;
             }
             return true;
         });
 
-        binding.groupUser.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        binding.groupUser.setOnItemClickListener((parent, view, position, id) -> {
+            User x = users.get(position);
+            Intent DetailUserPaymentEvents = new Intent(MainActivity.this, DetailUserPaymentEventsActivity.class);
+            DetailUserPaymentEvents.putExtra(DETAIL_PAYMENTS, x);
+            startActivity(DetailUserPaymentEvents);
+        });
+
+        binding.groupUser.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 User x = users.get(position);
-                Intent DetailUserPaymentEvents = new Intent(MainActivity.this, DetailUserPaymentEventsActivity.class);
-                DetailUserPaymentEvents.putExtra(DETAIL_PAYMENTS, x);
-                startActivity(DetailUserPaymentEvents);
+                new MaterialAlertDialogBuilder(MainActivity.this, R.style.Body_ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                        .setTitle("Delete")
+                        .setMessage("Remove "+x.getEmail()+"?")
+                        .setNegativeButton("Cancel", null)
+                        .setPositiveButton("Remove", (dialog, which) -> db.collection(GROUP_USERS).document(grID)
+                                .update("members", FieldValue.arrayRemove(x.getUniqueID()))
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        groupUseradapter.removeData(position);
+                                        Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show();
+                                    }
+                                })).show();
+                return true;
             }
         });
 
@@ -187,6 +220,42 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         signout.setOnClickListener(v -> SignOut());
     }
 
+    private void AddUsertoGroup() {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View v = inflater.inflate(R.layout.password_dialog, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        TextInputLayout user_id = v.findViewById(R.id.pin_authen);
+        builder.setView(v);
+        builder.setCancelable(true)
+            .setPositiveButton("Add", (dialog, which) ->
+                db.collection(USERS).whereEqualTo("uniqueID", user_id.getEditText().getText().toString())
+                    .limit(1).get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (queryDocumentSnapshots.size() == 0) {
+                            Toast.makeText(getApplicationContext(), "User is not exited!", Toast.LENGTH_LONG).show();
+                        } else {
+                            db.collection(GROUP_USERS).document(grID)
+                                .update("members", FieldValue.arrayUnion(user_id.getEditText().getText().toString()))
+                                .addOnSuccessListener(aVoid -> {
+                                    GroupUserView();
+                                    Toast.makeText(getApplicationContext(), "Added", Toast.LENGTH_LONG).show();
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Add failed!", Toast.LENGTH_LONG).show());
+                        }
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Fail to get user", Toast.LENGTH_LONG).show()))
+            .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void CopyUserID() {
+        ClipboardManager clipboardManager   = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData                   = ClipData.newPlainText("UserID", userID);
+        clipboardManager.setPrimaryClip(clipData);
+        Toast.makeText(getApplicationContext(), "Your ID copied!", Toast.LENGTH_LONG).show();
+    }
+
     private void GroupUserView() {
         progressDialog.setMessage("Waiting...");
         progressDialog.show();
@@ -194,36 +263,35 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             .whereArrayContains("members", userID)
             .limit(1)
             .get()
-            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                @Override
-                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                    for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
-                        GroupUsers x = i.toObject(GroupUsers.class);
-                        sidebar_menu.setTitle(x.getName());
-                        users.clear();
-                        for (String f: x.getMembers()) {
-                            db.collection(USERS).whereEqualTo("uniqueID", f).limit(1).get()
-                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                            progressDialog.dismiss();
-                                            for (QueryDocumentSnapshot g: queryDocumentSnapshots) {
-                                                users.add(g.toObject(User.class));
-                                                if (users.size() == x.getMembers().size()) {
-                                                    //Get all users
-                                                    groupUseradapter.setData(users);
-                                                }
-                                                ChangeMode(true, users.size());
-                                            }
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+                for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                    grID            = i.getId();
+                    GroupUsers x    = i.toObject(GroupUsers.class);
+                    sidebar_menu.setTitle(x.getName());
+
+                    for (String f: x.getMembers()) {
+                        db.collection(USERS).whereEqualTo("uniqueID", f).limit(1).get()
+                            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                @Override
+                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                    progressDialog.dismiss();
+                                    users.clear();
+                                    for (QueryDocumentSnapshot g: queryDocumentSnapshots) {
+                                        users.add(g.toObject(User.class));
+                                        if (users.size() == x.getMembers().size()) {
+                                            //Get all users
+                                            groupUseradapter.setData(users);
                                         }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                        }
+                                        ChangeMode(true, users.size());
+                                    }
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
+                                }
+                            });
                     }
                 }
             });
@@ -232,24 +300,38 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     private void GetInvoiceData() {
         progressDialog.setMessage("Waiting...");
         progressDialog.show();
-        db.collection(PAYMENT_EVENTS)
-                .whereEqualTo("uniqueID", userID)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        data.clear();
-                        progressDialog.dismiss();
-                        for (QueryDocumentSnapshot i: task.getResult()) {
-                            Events x = i.toObject(Events.class);
-                            data.add(x);
-                        }
-                        ChangeMode(false, data.size());
-                        Collections.reverse(data); //sort by timestamp
-                        adapter.setData(data);
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
+        db.collection(USERS)
+            .whereEqualTo("uniqueID", userID)
+            .limit(1)
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot i: task.getResult()) {
+                        User x = i.toObject(User.class);
+                        sidebar_menu.setTitle(x.getAmount() + " " +x.getUnit());
                     }
-                });
+                } else {
+                    Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
+                }
+            });
+        db.collection(PAYMENT_EVENTS)
+            .whereEqualTo("uniqueID", userID)
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    data.clear();
+                    progressDialog.dismiss();
+                    for (QueryDocumentSnapshot i: task.getResult()) {
+                        Events x = i.toObject(Events.class);
+                        data.add(x);
+                    }
+                    ChangeMode(false, data.size());
+                    Collections.reverse(data); //sort by timestamp
+                    adapter.setData(data);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
+                }
+            });
     }
 
     private void handlerQR(IntentResult intentResult) {

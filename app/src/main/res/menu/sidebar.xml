@@ -29,10 +29,10 @@
                 android:icon="@drawable/ic_chart"
                 android:title="Group"/>
 
-            <item
-                android:id="@+id/manager_group"
-                android:icon="@drawable/ic_group"
-                android:title="Manager"/>
+<!--            <item-->
+<!--                android:id="@+id/manager_group"-->
+<!--                android:icon="@drawable/ic_group"-->
+<!--                android:title="Manager"/>-->
     </group>
 
     <group
@@ -48,6 +48,10 @@
                     android:id="@+id/info"
                     android:icon="@drawable/ic_info"
                     android:title="Update info"/>
+                <item
+                    android:id="@+id/share"
+                    android:icon="@drawable/ic_share"
+                    android:title="Share code"/>
                 </item>
     </group>
 </menu>

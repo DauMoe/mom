@@ -1,24 +1,23 @@
 package com.example.mom.Adapter;
 
 import android.content.Context;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
-import com.bumptech.glide.Glide;
 import com.example.mom.Module.User;
 import com.example.mom.R;
 import com.google.android.material.textview.MaterialTextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GroupUserAdapter extends BaseAdapter {
     private Context context;
-    private List<User> data;
+    private List<User> data = new ArrayList<>();
     private LayoutInflater inflater;
 
     public GroupUserAdapter(Context context) {
@@ -28,6 +27,11 @@ public class GroupUserAdapter extends BaseAdapter {
 
     public void setData(List<User> data) {
         this.data = data;
+        notifyDataSetChanged();
+    }
+
+    public void addData(User x) {
+        this.data.add(x);
         notifyDataSetChanged();
     }
 
@@ -49,13 +53,14 @@ public class GroupUserAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder v;
+        final ViewHolder v;
         if (convertView == null) {
             convertView     = inflater.inflate(R.layout.group_user_item, null);
             v               = new ViewHolder();
             v.ava           = convertView.findViewById(R.id.ava);
             v.user_display  = convertView.findViewById(R.id.user_display);
             v.user_balance  = convertView.findViewById(R.id.user_balance);
+            v.gr_item       = convertView.findViewById(R.id.gr_item);
             convertView.setTag(v);
         } else {
             v = (ViewHolder) convertView.getTag();
@@ -68,9 +73,15 @@ public class GroupUserAdapter extends BaseAdapter {
         return convertView;
     }
 
+    public void removeData(int pos) {
+        this.data.remove(pos);
+        notifyDataSetChanged();
+    }
+
     static class ViewHolder {
         ImageView ava;
         MaterialTextView user_display;
         MaterialTextView user_balance;
+        LinearLayout gr_item;
     }
 }
