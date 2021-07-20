@@ -7,6 +7,7 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.mom.Adapter.CustomDialog;
 import com.example.mom.Module.User;
 import com.example.mom.databinding.ActivityAddMoneyBinding;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -78,8 +80,8 @@ public class AddMoneyActivity extends AppCompatActivity {
 
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
                 .setTitle("Authentication")
-                .setSubtitle("You can use password instead!")
-                .setNegativeButtonText("Use password")
+                .setSubtitle("You can use PIN instead!")
+                .setNegativeButtonText("Use PIN")
                 .build();
     }
 
@@ -102,41 +104,44 @@ public class AddMoneyActivity extends AppCompatActivity {
     }
 
     private void AuthenWithPassword() {
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View v = inflater.inflate(R.layout.password_dialog, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        TextInputLayout password = v.findViewById(R.id.pin_authen);
-        builder.setView(v);
-        db.collection(USERS)
-                .whereEqualTo("uniqueID", user.getUid())
-                .limit(1)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot i: task.getResult()) {
-                            User x = i.toObject(User.class);
-                            builder.setCancelable(true)
-                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            if (password.getEditText().getText().toString().equals(x.getPIN())) {
-                                                updateAmount();
-                                            } else {
-                                                Toast.makeText(getApplicationContext(), "Password invalid", Toast.LENGTH_LONG).show();
-                                            }
-                                        }
-                                    })
-                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.cancel();
-                                        }
-                                    });
-                            AlertDialog dialog = builder.create();
-                            dialog.show();
-                        }
-                    }
-                });
+        FragmentManager fm          = getSupportFragmentManager();
+        CustomDialog customDialog   = new CustomDialog(Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())), user.getUid());
+        customDialog.show(fm, "");
+//        LayoutInflater inflater = LayoutInflater.from(this);
+//        View v = inflater.inflate(R.layout.password_dialog, null);
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        TextInputLayout password = v.findViewById(R.id.pin_authen);
+//        builder.setView(v);
+//        db.collection(USERS)
+//                .whereEqualTo("uniqueID", user.getUid())
+//                .limit(1)
+//                .get()
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        for (QueryDocumentSnapshot i: task.getResult()) {
+//                            User x = i.toObject(User.class);
+//                            builder.setCancelable(true)
+//                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(DialogInterface dialog, int which) {
+//                                            if (password.getEditText().getText().toString().equals(x.getPIN())) {
+//                                                updateAmount();
+//                                            } else {
+//                                                Toast.makeText(getApplicationContext(), "Password invalid", Toast.LENGTH_LONG).show();
+//                                            }
+//                                        }
+//                                    })
+//                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(DialogInterface dialog, int which) {
+//                                            dialog.cancel();
+//                                        }
+//                                    });
+//                            AlertDialog dialog = builder.create();
+//                            dialog.show();
+//                        }
+//                    }
+//                });
     }
 
     private void updateAmount() {

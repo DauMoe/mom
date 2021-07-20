@@ -268,14 +268,13 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     grID            = i.getId();
                     GroupUsers x    = i.toObject(GroupUsers.class);
                     sidebar_menu.setTitle(x.getName());
-
+                    users.clear();
                     for (String f: x.getMembers()) {
                         db.collection(USERS).whereEqualTo("uniqueID", f).limit(1).get()
                             .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                 @Override
                                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                                     progressDialog.dismiss();
-                                    users.clear();
                                     for (QueryDocumentSnapshot g: queryDocumentSnapshots) {
                                         users.add(g.toObject(User.class));
                                         if (users.size() == x.getMembers().size()) {
