@@ -129,9 +129,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 //User isn't exist
                 User x = new User("", "", "VND", user.getUid(), "123456", 0);
                 db.collection(USERS).document().set(x)
-                    .addOnSuccessListener(aVoid -> {
-
-                    })
+                    .addOnSuccessListener(aVoid -> {})
                     .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Create failed!", Toast.LENGTH_LONG).show());
             }
         });
@@ -249,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     private void CreateGroup() {
         FragmentManager fm              = getSupportFragmentManager();
-        CreateGroupDialog customDialog   = new CreateGroupDialog();
+        CreateGroupDialog customDialog  = new CreateGroupDialog();
         customDialog.show(fm, "");
     }
 
