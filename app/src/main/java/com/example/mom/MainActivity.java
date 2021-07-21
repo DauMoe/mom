@@ -24,10 +24,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.mom.Adapter.CreateGroupDialog;
+import com.example.mom.Adapter.CustomDialog;
 import com.example.mom.Adapter.ExchangeAdapter;
 import com.example.mom.Adapter.GroupUserAdapter;
 import com.example.mom.Login.AccLoginActivity;
@@ -112,6 +115,26 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         //Init Data
         GetInvoiceData();
         add.setVisibility(View.GONE);
+
+        //Check User existed
+        CheckUserExisted();
+    }
+
+    private void CheckUserExisted() {
+        db.collection(USERS)
+                .whereEqualTo("uniqueID", user.getUid())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+            if (queryDocumentSnapshots.size()==0) {
+                //User isn't exist
+                User x = new User("", "", "VND", user.getUid(), "123456", 0);
+                db.collection(USERS).document().set(x)
+                    .addOnSuccessListener(aVoid -> {
+
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Create failed!", Toast.LENGTH_LONG).show());
+            }
+        });
     }
 
     private void ChangeMode(boolean isGroupUserMode, int size) {
@@ -158,6 +181,10 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     item.setChecked(true);
                     add.setVisibility(View.VISIBLE);
                     GroupUserView();
+                    break;
+                case R.id.create_group:
+                    item.setChecked(true);
+                    CreateGroup();
                     break;
                 case R.id.change_pins:
                     item.setChecked(true);
@@ -220,6 +247,12 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         signout.setOnClickListener(v -> SignOut());
     }
 
+    private void CreateGroup() {
+        FragmentManager fm              = getSupportFragmentManager();
+        CreateGroupDialog customDialog   = new CreateGroupDialog();
+        customDialog.show(fm, "");
+    }
+
     private void AddUsertoGroup() {
         LayoutInflater inflater = LayoutInflater.from(this);
         View v = inflater.inflate(R.layout.password_dialog, null);
@@ -234,13 +267,31 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         if (queryDocumentSnapshots.size() == 0) {
                             Toast.makeText(getApplicationContext(), "User is not exited!", Toast.LENGTH_LONG).show();
                         } else {
-                            db.collection(GROUP_USERS).document(grID)
-                                .update("members", FieldValue.arrayUnion(user_id.getEditText().getText().toString()))
-                                .addOnSuccessListener(aVoid -> {
-                                    GroupUserView();
-                                    Toast.makeText(getApplicationContext(), "Added", Toast.LENGTH_LONG).show();
-                                })
-                                .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Add failed!", Toast.LENGTH_LONG).show());
+                            //Check if user is in another gr yet?
+                            db.collection(GROUP_USERS).whereArrayContains("members", user_id.getEditText().getText().toString()).get()
+                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                            if (queryDocumentSnapshots.size()>0) {
+                                                Toast.makeText(getApplicationContext(), "This user is in another group", Toast.LENGTH_LONG).show();
+                                                return;
+                                            }
+                                            //If user didn't in another group
+                                            db.collection(GROUP_USERS).document(grID)
+                                                .update("members", FieldValue.arrayUnion(user_id.getEditText().getText().toString()))
+                                                .addOnSuccessListener(aVoid -> {
+                                                    GroupUserView();
+                                                    Toast.makeText(getApplicationContext(), "Added", Toast.LENGTH_LONG).show();
+                                                })
+                                                .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Add failed!", Toast.LENGTH_LONG).show());
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(getApplicationContext(), "Check failed!", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
                         }
                     })
                     .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Fail to get user", Toast.LENGTH_LONG).show()))
@@ -264,6 +315,12 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             .limit(1)
             .get()
             .addOnSuccessListener(queryDocumentSnapshots -> {
+                if (queryDocumentSnapshots.size() == 0) {
+                    add.setVisibility(View.GONE);
+                    ChangeMode(true, 0);
+                    progressDialog.dismiss();
+                    return;
+                }
                 for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
                     grID            = i.getId();
                     GroupUsers x    = i.toObject(GroupUsers.class);
@@ -382,13 +439,15 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         }
         if (user.getDisplayName() != null) {
             dpUser.setText(displayName);
+        } else {
+            dpUser.setText("Hello!");
         }
         if (avaUrl != null) {
             Glide.with(this).load(avaUrl).into(ava);
         }
         if (user.getEmail() == null && user.getPhoneNumber() != null) {
-            dpUser.setText(user.getPhoneNumber());
-            dpEmail.setText(null);
+            dpUser.setText("Hello!");
+            dpEmail.setText(user.getPhoneNumber());
         }
     }
 

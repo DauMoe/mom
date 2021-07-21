@@ -9,6 +9,15 @@ public class User implements Serializable {
     public User() {
     }
 
+    public User(String email, String phone, String unit, String uniqueID, String pin, long amount) {
+        this.email = email;
+        this.phone = phone;
+        this.unit = unit;
+        this.uniqueID = uniqueID;
+        this.pin = pin;
+        this.amount = amount;
+    }
+
     public User(String username, String email, String phone, String unit, String uniqueID, String PIN, String address, String gender, String dob, long amount) {
         this.username = username;
         this.email = email;

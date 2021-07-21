@@ -11,10 +11,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MoM">
-        <activity android:name=".GroupMangerActivity"/>
+        <activity android:name=".Login.CreateNewUserActivity"></activity>
+        <activity android:name=".GroupMangerActivity" />
         <activity
             android:name=".UpdateInfoActivity"
-            android:windowSoftInputMode="stateVisible|adjustResize"/>
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity android:name=".Change_pinActivity" />
         <activity android:name=".DetailUserPaymentEventsActivity" />
         <activity android:name=".AddMoneyActivity" />

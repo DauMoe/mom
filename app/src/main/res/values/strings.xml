@@ -7,11 +7,12 @@
     <string name="phone_err">Invalid phone number!</string>
     <string name="otp_err">Enter OTP code!</string>
     <string name="resend_otp">Didn\'t get OTP? <b>Resend</b></string>
+    <string name="create_new">Don\'t have an account? <b>Create new!</b></string>
 
     <!-- Sidebar Item -->
     <string name="item1">History</string>
     <string name="item2">Group</string>
-    <string name="header_title">Admin1</string>
+    <string name="header_title">Hello!</string>
     <string name="header_text">ad@gmail.com</string>
 
     <!-- Paymeny -->

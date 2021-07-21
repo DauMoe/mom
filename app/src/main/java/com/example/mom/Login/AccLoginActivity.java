@@ -74,6 +74,7 @@ public class AccLoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        binding.createAcc.setOnClickListener(v -> startActivity(new Intent(AccLoginActivity.this, CreateNewUserActivity.class)));
         login_btn.setOnClickListener(v -> LoginWithAccount());
         google.setOnClickListener(v -> LoginWithGoogleClient());
         phone.setOnClickListener(v -> startActivity(new Intent(AccLoginActivity.this, PhoneLoginActivity.class)));
