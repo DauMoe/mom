@@ -25,11 +25,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+
 public class CreateNewUserActivity extends AppCompatActivity {
     private ActivityCreateNewUserBinding binding;
     protected FirebaseFirestore db;
     protected FirebaseAuth auth;
     ProgressDialog progressDialog;
+    HashMap<String, Object> updateData = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,26 +73,23 @@ public class CreateNewUserActivity extends AppCompatActivity {
             if (isErr) return;
             progressDialog.setMessage("Creating...");
             progressDialog.show();
-            String add      = binding.createAddress.getEditText().getText().toString();
-            String gender   = binding.genderItem.getText().toString();
-            String dob      = binding.createDob.getText().toString();
+
             auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
                         FirebaseUser user = auth.getCurrentUser();
+                        updateData.clear();
+                        updateData.put("email", email);
+                        updateData.put("address", binding.createAddress.getEditText().getText().toString());
+                        updateData.put("gender", binding.genderItem.getText().toString());
+                        updateData.put("dob", binding.createDob.getText().toString());
+                        updateData.put("pin", "123456");
+                        updateData.put("amount", 0);
+                        updateData.put("unit", "VND");
+                        updateData.put("uniqueID", user.getUid());
                         db.collection(DefineVars.USERS).document()
-                                .set(new User(
-                                        "",
-                                        email,
-                                        "",
-                                        "VND",
-                                        user.getUid(),
-                                        "123456",
-                                        add,
-                                        gender,
-                                        dob,
-                                        0L))
+                                .set(updateData)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
