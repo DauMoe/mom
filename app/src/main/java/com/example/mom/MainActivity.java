@@ -146,6 +146,24 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Create failed!", Toast.LENGTH_LONG).show());
             }
         });
+
+        db.collection(GROUP_USERS).whereEqualTo("host", user.getUid()).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (queryDocumentSnapshots.size()==0) {
+                            updateData.clear();
+                            updateData.put("host", user.getUid());
+                            updateData.put("members", new ArrayList<>());
+                            updateData.put("name", "My group");
+                            db.collection(GROUP_USERS).document().set(updateData)
+                                .addOnSuccessListener(v -> {})
+                                .addOnFailureListener(v -> {
+                                    Toast.makeText(getApplicationContext(), "Create group failed!", Toast.LENGTH_LONG).show();
+                                });
+                        }
+                    }
+                });
     }
 
     private void ChangeMode(boolean isGroupUserMode, int size) {

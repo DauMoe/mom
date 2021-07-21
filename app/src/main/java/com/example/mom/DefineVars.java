@@ -35,6 +35,8 @@ public class DefineVars {
     public static final String USERS            = "users";
     public static final String PAYMENT_EVENTS   = "payment_events";
     public static final String GROUP_USERS      = "groups";
+    public static final String EARNING_CATE     = "earnings_categories";
+    public static final String CATEGORIES       = "categories";
 
     //============== Intent ==============
     public static final String PAYMENT_INFO     = "payment_info";
