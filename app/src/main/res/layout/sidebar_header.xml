@@ -19,7 +19,7 @@
             android:layout_height="wrap_content">
             <ImageView
                 android:id="@+id/user_ava"
-                android:src="@drawable/common_google_signin_btn_icon_dark_focused"
+                android:src="@drawable/default_ava"
                 android:layout_width="60dp"
                 android:layout_height="60dp"/>
             <TextView
