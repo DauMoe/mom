@@ -59,6 +59,7 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.example.mom.DefineVars.*;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     List<User> users = new ArrayList<>();
     View add;
     String grID;
+    HashMap<String, Object> updateData = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,14 +123,25 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
     private void CheckUserExisted() {
+        updateData.clear();
+        updateData.put("email", "");
+        updateData.put("unit", "VND");
+        updateData.put("uniqueID", user.getUid());
+        updateData.put("PIN", "123456");
+        updateData.put("amount", 0);
+        if (user.getPhoneNumber() != null) {
+            updateData.put("phone", user.getPhoneNumber());
+        }
+        if (user.getEmail() != null) {
+            updateData.put("email", user.getEmail());
+        }
         db.collection(USERS)
                 .whereEqualTo("uniqueID", user.getUid())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
             if (queryDocumentSnapshots.size()==0) {
                 //User isn't exist
-                User x = new User("", "", "VND", user.getUid(), "123456", 0);
-                db.collection(USERS).document().set(x)
+                db.collection(USERS).document().set(updateData)
                     .addOnSuccessListener(aVoid -> {})
                     .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Create failed!", Toast.LENGTH_LONG).show());
             }
