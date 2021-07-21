@@ -17,6 +17,7 @@ public class DefineVars {
         Databinding                     : https://developer.android.com/topic/libraries/data-binding/expressions
         Query/Getting firestore         : https://firebase.google.com/docs/firestore/query-data/order-limit-data#java
         Biometric Authentication        : https://developer.android.com/training/sign-in/biometric-auth
+        LineChart                       : https://weeklycoding.com/mpandroidchart-documentation/setting-data/
 
         ================== Note =================
         platform-tools                  : %LOCALAPPDATA%\Android\Sdk\platform-tools

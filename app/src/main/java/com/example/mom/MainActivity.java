@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +40,12 @@ import com.example.mom.Module.GroupUsers;
 import com.example.mom.Module.Invoice;
 import com.example.mom.Module.User;
 import com.example.mom.databinding.ActivityMainBinding;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -57,7 +64,9 @@ import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -86,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     View add;
     String grID;
     HashMap<String, Object> updateData = new HashMap<>();
+    LineChart lineChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         groupUseradapter            = new GroupUserAdapter(getApplicationContext());
         progressDialog              = new ProgressDialog(this);
         add                         = findViewById(R.id.add_gr);
+        lineChart                   = binding.chart;
         sidebar.setDrawerListener(this);
         binding.groupUser.setAdapter(groupUseradapter);
 
@@ -115,11 +126,54 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         binding.exchangeRcv.setAdapter(adapter);
 
         //Init Data
-        GetInvoiceData();
-        add.setVisibility(View.GONE);
+        DrawLineChart();
+//        GetInvoiceData();
+//        add.setVisibility(View.GONE);
 
         //Check User existed
         CheckUserExisted();
+    }
+    List<Entry> entries = new ArrayList<>();
+    Calendar calendar = Calendar.getInstance();
+    private void DrawLineChart() {
+//        LineChart chart = new LineChart(this);
+
+
+        //Desciption
+        Description desc = lineChart.getDescription();
+        desc.setEnabled(true);
+        desc.setText(user.getEmail());
+        desc.setPosition(0, 0);
+
+
+
+
+        db.collection(PAYMENT_EVENTS).whereEqualTo("uniqueID", user.getUid()).get()
+            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                        Events x = i.toObject(Events.class);
+                        calendar.setTimeInMillis(x.getTime());
+                        entries.add(new Entry(x.getAmount()/1000, x.getAmount()/1000));
+                    }
+//                    entries.add(new Entry(10,20));
+//                    entries.add(new Entry(11,21));
+//                    entries.add(new Entry(12,22));
+//                    entries.add(new Entry(13,23));
+//                    entries.add(new Entry(14,24));
+//                    entries.add(new Entry(15,25));
+                    LineDataSet lineDataSet = new LineDataSet(entries, "Biểu đồ thu chi");
+                    lineDataSet.setColors(ColorTemplate.JOYFUL_COLORS);
+                    lineChart.setData(new LineData(lineDataSet));
+
+                    lineChart.invalidate();//refresh
+                }
+            });
+
+
+//        lineDataSet.setColor(Color.parseColor("#000000"));
+//        lineDataSet.setValueTextColor(Color.parseColor("#FFF"));
     }
 
     private void CheckUserExisted() {

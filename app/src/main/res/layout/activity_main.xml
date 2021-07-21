@@ -48,13 +48,23 @@
                 android:textSize="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
+
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart"
+                android:layout_marginTop="95dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/exchange_rcv"
+                android:visibility="gone"
                 android:layout_marginTop="85dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
             <GridView
                 android:id="@+id/group_user"
+                android:visibility="gone"
                 android:numColumns="2"
                 android:layout_marginTop="95dp"
                 android:layout_marginLeft="8dp"
@@ -62,6 +72,10 @@
                 android:stretchMode="columnWidth"
                 android:layout_width="0dp"
                 android:layout_height="0dp"/>
+
+
+
+
 
             <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navagationview"
