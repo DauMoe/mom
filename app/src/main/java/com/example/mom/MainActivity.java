@@ -36,6 +36,8 @@ import com.example.mom.Module.Invoice;
 import com.example.mom.Module.User;
 import com.example.mom.databinding.ActivityMainBinding;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -61,6 +63,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -136,30 +139,110 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
     private void DrawLineChart() {
-        ArrayList<Entry> yVal1 = new ArrayList<>();
-        for (int i=0; i<10; i++) {
-            float val = (float) (Math.random()*10)+250;
-            yVal1.add(new Entry(i, val));
-        }
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        List<String> xAxisValues = new ArrayList<>(Arrays.asList("Jan", "Feb", "March", "April", "May", "June","July", "August", "September", "October", "November", "Decemeber"));
+        List<Entry> incomeEntries = getIncomeEntries();
+        List<Entry> incomeEntries2 = getIncomeEntries2();
+        dataSets = new ArrayList<>();
+        LineDataSet set1;
+        LineDataSet set2;
 
-        ArrayList<Entry> yVal2 = new ArrayList<>();
-        for (int i=0; i<10; i++) {
-            float val = (float) (Math.random()*10)+250;
-            yVal2.add(new Entry(i, val));
-        }
+        set1 = new LineDataSet(incomeEntries, "Income");
+        set1.setColor(Color.rgb(65, 168, 121));
+        set1.setValueTextColor(Color.rgb(55, 70, 73));
+        set1.setValueTextSize(10f);
+        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        dataSets.add(set1);
 
-        LineDataSet set1, set2;
-        set1 = new LineDataSet(yVal1, "Val 1");
-        set1.setColor(Color.RED);
-        set2 = new LineDataSet(yVal2, "Val 2");
-        set2.setColor(Color.GREEN);
-        set2.setFillColor(Color.GREEN);
+        set2 = new LineDataSet(incomeEntries2, "Outcome");
+        set2.setColor(Color.rgb(163, 122, 118));
+        set2.setValueTextColor(Color.rgb(55, 70, 73));
+        set2.setValueTextSize(10f);
+        set2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        dataSets.add(set2);
 
-        LineData data = new LineData(set1, set2);
-        lineChart.getAxisLeft().setDrawGridLines(false);
+            //customization
+//        lineChart.setTouchEnabled(true);
+//        lineChart.setDragEnabled(true);
+//        lineChart.setScaleEnabled(false);
+//        lineChart.setPinchZoom(false);
+//        lineChart.setDrawGridBackground(false);
+//        lineChart.setExtraLeftOffset(15);
+//        lineChart.setExtraRightOffset(15);
+
+            //to hide background lines
 //        lineChart.getXAxis().setDrawGridLines(false);
+//        lineChart.getAxisLeft().setDrawGridLines(false);
+//        lineChart.getAxisRight().setDrawGridLines(false);
+
+            //to hide right Y and top X border
+        YAxis rightYAxis = lineChart.getAxisRight();
+        rightYAxis.setEnabled(false);
+        YAxis leftYAxis = lineChart.getAxisLeft();
+        leftYAxis.setEnabled(false);
+        XAxis topXAxis = lineChart.getXAxis();
+        topXAxis.setEnabled(false);
+
+
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setGranularity(1f);
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setEnabled(true);
+        xAxis.setDrawGridLines(false);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
+//        set1.setLineWidth(4f);
+//        set1.setCircleRadius(3f);
+//        set1.setDrawValues(false);
+
+//String setter in x-Axis
+        lineChart.getXAxis().setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(xAxisValues));
+
+        LineData data = new LineData(dataSets);
         lineChart.setData(data);
+        lineChart.animateX(2000);
+        lineChart.invalidate();
+        lineChart.getLegend().setEnabled(false);
+        lineChart.getDescription().setEnabled(false);
     }
+
+    private List<Entry> getIncomeEntries() {
+        ArrayList<Entry> incomeEntries = new ArrayList<>();
+
+        incomeEntries.add(new Entry(1, 123));
+        incomeEntries.add(new Entry(2, 5433));
+        incomeEntries.add(new Entry(3, 2414));
+        incomeEntries.add(new Entry(4, 572));
+        incomeEntries.add(new Entry(5, 1832));
+        incomeEntries.add(new Entry(6, 832));
+        incomeEntries.add(new Entry(7, 721));
+        incomeEntries.add(new Entry(8, 973));
+        incomeEntries.add(new Entry(9, 5123));
+        incomeEntries.add(new Entry(10, 1258));
+        incomeEntries.add(new Entry(11, 4355));
+        incomeEntries.add(new Entry(12, 2417));
+        return incomeEntries.subList(0, 12);
+    }
+
+    private List<Entry> getIncomeEntries2() {
+        ArrayList<Entry> incomeEntries = new ArrayList<>();
+
+        incomeEntries.add(new Entry(1, 11400));
+        incomeEntries.add(new Entry(2, 1490));
+        incomeEntries.add(new Entry(3, 1290));
+        incomeEntries.add(new Entry(4, 7300));
+        incomeEntries.add(new Entry(5, 4890));
+        incomeEntries.add(new Entry(6, 4600));
+        incomeEntries.add(new Entry(7, 8100));
+        incomeEntries.add(new Entry(8, 7134));
+        incomeEntries.add(new Entry(9, 4407));
+        incomeEntries.add(new Entry(10, 8862));
+        incomeEntries.add(new Entry(11, 4455));
+        incomeEntries.add(new Entry(12, 6100));
+        return incomeEntries.subList(0, 12);
+    }
+
+
 
     private void CheckUserExisted() {
         updateData.clear();
