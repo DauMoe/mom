@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -79,7 +81,7 @@ import static com.example.mom.DefineVars.listMonth;
 
 public class MainActivity extends AppCompatActivity implements DrawerLayout.DrawerListener {
     private ActivityMainBinding binding;
-    private FloatingActionButton scanQR;
+    private FloatingActionButton scanQR, handWriterBill, mainFAB;
     private MaterialToolbar sidebar_menu;
     private MaterialButton signout;
     private DrawerLayout sidebar;
@@ -100,11 +102,17 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     String grID;
     HashMap<String, Object> updateData = new HashMap<>();
     LineChart lineChart;
+    boolean fab_clicked = false;
+
+    //Animation
+    public static Animation rotate_out_fab, rotate_in_fab, to_bottom, to_top;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding                     = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mainFAB                     = binding.mainFab;
+        handWriterBill              = binding.fabHandwriterbill;
         scanQR                      = binding.fabScanqr;
         sidebar_menu                = binding.sidebarMenu;
         sidebar                     = binding.sidebar;
@@ -136,6 +144,127 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
         //Check User existed
         CheckUserExisted();
+        initAnimation();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //Open sidebar when onclick sidebar icon
+        sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
+
+        add.setOnClickListener(v -> AddUsertoGroup());
+
+        mainFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fab_clicked = !fab_clicked;
+                System.out.println("Clicked: "+fab_clicked);
+                if (fab_clicked) {
+                    v.startAnimation(rotate_out_fab);
+                    handWriterBill.startAnimation(to_top);
+                    scanQR.startAnimation(to_top);
+                    handWriterBill.setVisibility(View.VISIBLE);
+                    scanQR.setVisibility(View.VISIBLE);
+                } else {
+                    v.startAnimation(rotate_in_fab);
+                    handWriterBill.startAnimation(to_bottom);
+                    scanQR.startAnimation(to_bottom);
+                    handWriterBill.setVisibility(View.GONE);
+                    scanQR.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        //Set onclick event in menu sidebar
+        navagationview.setNavigationItemSelectedListener(item -> {
+            sidebar.close();
+            //Start intent
+            switch (item.getItemId()) {
+                case R.id.add_money:
+                    item.setChecked(true);
+                    startActivity(new Intent(MainActivity.this, AddMoneyActivity.class));
+                    break;
+                case R.id.exchange_history:
+                    item.setChecked(true);
+                    add.setVisibility(View.GONE);
+                    GetInvoiceData();
+                    break;
+                case R.id.group_history:
+                    item.setChecked(true);
+                    add.setVisibility(View.VISIBLE);
+                    GroupUserView();
+                    break;
+                case R.id.create_group:
+                    item.setChecked(true);
+                    CreateGroup();
+                    break;
+                case R.id.change_pins:
+                    item.setChecked(true);
+                    startActivity(new Intent(MainActivity.this, Change_pinActivity.class));
+                    break;
+                case R.id.info:
+                    item.setChecked(true);
+                    startActivity(new Intent(MainActivity.this, UpdateInfoActivity.class));
+                    break;
+                case R.id.share:
+                    CopyUserID();
+                    break;
+            }
+            return true;
+        });
+
+        binding.groupUser.setOnItemClickListener((parent, view, position, id) -> {
+            User x = users.get(position);
+            Intent DetailUserPaymentEvents = new Intent(MainActivity.this, DetailUserPaymentEventsActivity.class);
+            DetailUserPaymentEvents.putExtra(DETAIL_PAYMENTS, x);
+            startActivity(DetailUserPaymentEvents);
+        });
+
+        binding.groupUser.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                User x = users.get(position);
+                new MaterialAlertDialogBuilder(MainActivity.this, R.style.Body_ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                        .setTitle("Delete")
+                        .setMessage("Remove "+x.getEmail()+"?")
+                        .setNegativeButton("Cancel", null)
+                        .setPositiveButton("Remove", (dialog, which) -> db.collection(GROUP_USERS).document(grID)
+                                .update("members", FieldValue.arrayRemove(x.getUniqueID()))
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        groupUseradapter.removeData(position);
+                                        Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show();
+                                    }
+                                })).show();
+                return true;
+            }
+        });
+
+        //Set onclick FAB events
+        scanQR.setOnClickListener(v -> {
+            IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
+            intentIntegrator.setPrompt("Tip: Vol up/down to turn on/off flash!");
+            intentIntegrator.setBeepEnabled(true);
+            intentIntegrator.setOrientationLocked(true);
+            intentIntegrator.setCaptureActivity(Capture.class);
+            intentIntegrator.initiateScan();
+        });
+        signout.setOnClickListener(v -> SignOut());
+    }
+
+    private void initAnimation() {
+        rotate_out_fab = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_out_fab);
+        rotate_in_fab = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_in_fab);
+        to_bottom = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.translate_to_bottom);
+        to_top = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.translate_to_top);
     }
 
     private void DrawLineChart() {
@@ -191,11 +320,12 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         xAxis.setDrawGridLines(false);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
-//        set1.setLineWidth(4f);
+        set1.setLineWidth(3f);
+        set2.setLineWidth(3f);
 //        set1.setCircleRadius(3f);
 //        set1.setDrawValues(false);
 
-//String setter in x-Axis
+        //String setter in x-Axis
         lineChart.getXAxis().setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(xAxisValues));
 
         LineData data = new LineData(dataSets);
@@ -303,98 +433,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 binding.exchangeRcv.setVisibility(View.VISIBLE);
             }
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        //Open sidebar when onclick sidebar icon
-        sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
-
-        add.setOnClickListener(v -> AddUsertoGroup());
-
-        //Set onclick event in menu sidebar
-        navagationview.setNavigationItemSelectedListener(item -> {
-            sidebar.close();
-            //Start intent
-            switch (item.getItemId()) {
-                case R.id.add_money:
-                    item.setChecked(true);
-                    startActivity(new Intent(MainActivity.this, AddMoneyActivity.class));
-                    break;
-                case R.id.exchange_history:
-                    item.setChecked(true);
-                    add.setVisibility(View.GONE);
-                    GetInvoiceData();
-                    break;
-                case R.id.group_history:
-                    item.setChecked(true);
-                    add.setVisibility(View.VISIBLE);
-                    GroupUserView();
-                    break;
-                case R.id.create_group:
-                    item.setChecked(true);
-                    CreateGroup();
-                    break;
-                case R.id.change_pins:
-                    item.setChecked(true);
-                    startActivity(new Intent(MainActivity.this, Change_pinActivity.class));
-                    break;
-                case R.id.info:
-                    item.setChecked(true);
-                    startActivity(new Intent(MainActivity.this, UpdateInfoActivity.class));
-                    break;
-                case R.id.share:
-                    CopyUserID();
-                    break;
-            }
-            return true;
-        });
-
-        binding.groupUser.setOnItemClickListener((parent, view, position, id) -> {
-            User x = users.get(position);
-            Intent DetailUserPaymentEvents = new Intent(MainActivity.this, DetailUserPaymentEventsActivity.class);
-            DetailUserPaymentEvents.putExtra(DETAIL_PAYMENTS, x);
-            startActivity(DetailUserPaymentEvents);
-        });
-
-        binding.groupUser.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                User x = users.get(position);
-                new MaterialAlertDialogBuilder(MainActivity.this, R.style.Body_ThemeOverlay_MaterialComponents_MaterialAlertDialog)
-                        .setTitle("Delete")
-                        .setMessage("Remove "+x.getEmail()+"?")
-                        .setNegativeButton("Cancel", null)
-                        .setPositiveButton("Remove", (dialog, which) -> db.collection(GROUP_USERS).document(grID)
-                                .update("members", FieldValue.arrayRemove(x.getUniqueID()))
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        groupUseradapter.removeData(position);
-                                        Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show();
-                                    }
-                                })).show();
-                return true;
-            }
-        });
-
-        //Set onclick FAB events
-        scanQR.setOnClickListener(v -> {
-            IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
-            intentIntegrator.setPrompt("Tip: Vol up/down to turn on/off flash!");
-            intentIntegrator.setBeepEnabled(true);
-            intentIntegrator.setOrientationLocked(true);
-            intentIntegrator.setCaptureActivity(Capture.class);
-            intentIntegrator.initiateScan();
-        });
-        signout.setOnClickListener(v -> SignOut());
     }
 
     private void CreateGroup() {

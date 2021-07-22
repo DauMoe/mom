@@ -50,6 +50,8 @@
                 android:layout_height="match_parent"/>
 
 
+
+
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart"
                 android:layout_marginTop="95dp"
@@ -62,6 +64,7 @@
                 android:layout_marginTop="85dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+
             <GridView
                 android:id="@+id/group_user"
                 android:visibility="gone"
@@ -100,19 +103,49 @@
             </com.google.android.material.navigation.NavigationView>
         </androidx.drawerlayout.widget.DrawerLayout>
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:scaleX="0.8"
+            android:scaleY="0.8"
+            android:visibility="gone"
+            android:id="@+id/fab_scanqr"
+            android:layout_marginBottom="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/fab_handwriterbill"
+            app:layout_constraintEnd_toEndOf="@+id/fab_handwriterbill"
+            app:srcCompat="@drawable/ic_qr"
+            app:tint="@color/white"
+            android:backgroundTint="#B84CAA"
+            app:borderWidth="0dp"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_scanqr"
+            android:visibility="gone"
+            android:scaleX="0.8"
+            android:scaleY="0.8"
+            android:id="@+id/fab_handwriterbill"
+            android:layout_marginBottom="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/main_fab"
+            app:layout_constraintEnd_toEndOf="@+id/main_fab"
+            android:src="@drawable/ic_bill"
+            app:tint="@color/white"
+            android:backgroundTint="#FDA92D"
+            app:borderWidth="0dp"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:layout_margin="16dp"
-            app:srcCompat="@drawable/ic_qr"
-            app:fabCustomSize="50dp"
-            app:tint="@color/white"
-            app:borderWidth="0dp"
-            app:backgroundTint="#EC805E"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:id="@+id/main_fab"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:backgroundTint="#EC805E"
+            app:tint="@color/white"
+            android:src="@drawable/ic_plus"
+            app:fabSize="normal"
+            app:borderWidth="0dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,5 +1,7 @@
 package com.example.mom;
 
+import android.view.animation.Animation;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -17,7 +19,7 @@ public class DefineVars {
         Databinding                     : https://developer.android.com/topic/libraries/data-binding/expressions
         Query/Getting firestore         : https://firebase.google.com/docs/firestore/query-data/order-limit-data#java
         Biometric Authentication        : https://developer.android.com/training/sign-in/biometric-auth
-        LineChart                       : http://www.codeplayon.com/2019/05/android-dynamic-line-chart-example/
+        LineChart (String xAxis)        : https://stackoverflow.com/questions/45320457/how-to-set-string-value-of-xaxis-in-mpandroidchart
 
         ================== Note =================
         platform-tools                  : %LOCALAPPDATA%\Android\Sdk\platform-tools
@@ -37,7 +39,7 @@ public class DefineVars {
     public static final String PAYMENT_EVENTS   = "payment_events";
     public static final String GROUP_USERS      = "groups";
     public static final String EARNING_CATE     = "earnings_categories";
-    public static final String CATEGORIES       = "categories";
+    public static final String CONSUMING_CATE   = "consuming_categories";
 
     //============== Intent ==============
     public static final String PAYMENT_INFO     = "payment_info";
