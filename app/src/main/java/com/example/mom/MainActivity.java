@@ -4,17 +4,12 @@ import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.mom.Adapter.CreateGroupDialog;
-import com.example.mom.Adapter.CustomDialog;
 import com.example.mom.Adapter.ExchangeAdapter;
 import com.example.mom.Adapter.GroupUserAdapter;
 import com.example.mom.Login.AccLoginActivity;
@@ -41,7 +35,6 @@ import com.example.mom.Module.Invoice;
 import com.example.mom.Module.User;
 import com.example.mom.databinding.ActivityMainBinding;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -64,14 +57,19 @@ import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.mom.DefineVars.*;
+import static com.example.mom.DefineVars.DETAIL_PAYMENTS;
+import static com.example.mom.DefineVars.GROUP_USERS;
+import static com.example.mom.DefineVars.MOM_BILL;
+import static com.example.mom.DefineVars.PAYMENT_EVENTS;
+import static com.example.mom.DefineVars.PAYMENT_INFO;
+import static com.example.mom.DefineVars.USERS;
+import static com.example.mom.DefineVars.listMonth;
 
 public class MainActivity extends AppCompatActivity implements DrawerLayout.DrawerListener {
     private ActivityMainBinding binding;
@@ -127,46 +125,44 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
         //Init Data
         DrawLineChart();
-//        GetInvoiceData();
-//        add.setVisibility(View.GONE);
+        GetInvoiceData();
+        add.setVisibility(View.GONE);
 
         //Check User existed
         CheckUserExisted();
     }
-    List<Entry> entries = new ArrayList<>();
+
+
+    List<Entry> amountData = new ArrayList<Entry>();
+    List<String> dateData = new ArrayList<String>();
     Calendar calendar = Calendar.getInstance();
     private void DrawLineChart() {
-//        LineChart chart = new LineChart(this);
 
 
         //Desciption
-        Description desc = lineChart.getDescription();
-        desc.setEnabled(true);
-        desc.setText(user.getEmail());
-        desc.setPosition(0, 0);
-
-
-
-
+//        Description desc = lineChart.getDescription();
+//        desc.setEnabled(true);
+//        desc.setText(user.getEmail());
+//        desc.setPosition(0, 0);
+        amountData.clear();
+        dateData.clear();
         db.collection(PAYMENT_EVENTS).whereEqualTo("uniqueID", user.getUid()).get()
             .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override
                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    int c = 0;
                     for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
                         Events x = i.toObject(Events.class);
                         calendar.setTimeInMillis(x.getTime());
-                        entries.add(new Entry(x.getAmount()/1000, x.getAmount()/1000));
+                        amountData.add(new Entry(x.getAmount(), c++));
+                        dateData.add(listMonth[calendar.get(Calendar.MONTH)] + " "+calendar.get(Calendar.DAY_OF_MONTH)+", "+calendar.get(Calendar.YEAR));
                     }
-//                    entries.add(new Entry(10,20));
-//                    entries.add(new Entry(11,21));
-//                    entries.add(new Entry(12,22));
-//                    entries.add(new Entry(13,23));
-//                    entries.add(new Entry(14,24));
-//                    entries.add(new Entry(15,25));
-                    LineDataSet lineDataSet = new LineDataSet(entries, "Biểu đồ thu chi");
-                    lineDataSet.setColors(ColorTemplate.JOYFUL_COLORS);
-                    lineChart.setData(new LineData(lineDataSet));
-
+                    LineDataSet set1 = new LineDataSet(amountData, "Chart demo");
+                    set1.setColors(ColorTemplate.PASTEL_COLORS);
+                    set1.setLineWidth(2f);
+                    set1.setCircleRadius(4f);
+                    LineData xxx = new LineData(dateData, set1);
+                    lineChart.setData(xxx);
                     lineChart.invalidate();//refresh
                 }
             });
@@ -178,7 +174,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     private void CheckUserExisted() {
         updateData.clear();
-        updateData.put("email", "");
         updateData.put("unit", "VND");
         updateData.put("uniqueID", user.getUid());
         updateData.put("PIN", "123456");
