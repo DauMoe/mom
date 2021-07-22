@@ -128,97 +128,37 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
         //Init Data
         DrawLineChart();
-        GetInvoiceData();
+//        GetInvoiceData();
         add.setVisibility(View.GONE);
 
         //Check User existed
         CheckUserExisted();
     }
 
-
-    List<Entry> amountData = new ArrayList<Entry>();
-    List<Entry> xxx = new ArrayList<Entry>();
-    List<String> dateData = new ArrayList<String>();
-    Calendar calendar = Calendar.getInstance();
     private void DrawLineChart() {
+        ArrayList<Entry> yVal1 = new ArrayList<>();
+        for (int i=0; i<10; i++) {
+            float val = (float) (Math.random()*10)+250;
+            yVal1.add(new Entry(i, val));
+        }
 
+        ArrayList<Entry> yVal2 = new ArrayList<>();
+        for (int i=0; i<10; i++) {
+            float val = (float) (Math.random()*10)+250;
+            yVal2.add(new Entry(i, val));
+        }
 
-        //Desciption
-//        Description desc = lineChart.getDescription();
-//        desc.setEnabled(true);
-//        desc.setText(user.getEmail());
-//        desc.setPosition(0, 0);
-        amountData.clear();
-        dateData.clear();
-        xxx.clear();
-        db.collection(PAYMENT_EVENTS).whereEqualTo("uniqueID", user.getUid()).get()
-            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                @Override
-                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                    int c = 0;
-                    for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
-                        Events x = i.toObject(Events.class);
-                        calendar.setTimeInMillis(x.getTime());
-                        if (x.isEarning()) {
-                            xxx.add(new Entry(x.getAmount(), c++));
-                        } else {
-                            amountData.add(new Entry(x.getAmount(), c++));
-                        }
-                        dateData.add(listMonth[calendar.get(Calendar.MONTH)] + " "+calendar.get(Calendar.DAY_OF_MONTH)+", "+calendar.get(Calendar.YEAR));
-                    }
+        LineDataSet set1, set2;
+        set1 = new LineDataSet(yVal1, "Val 1");
+        set1.setColor(Color.RED);
+        set2 = new LineDataSet(yVal2, "Val 2");
+        set2.setColor(Color.GREEN);
+        set2.setFillColor(Color.GREEN);
 
-//                    ArrayList<LineDataSet> xx = new ArrayList<LineDataSet>();
-//                    LineDataSet set1 = new LineDataSet(amountData, "Consume");
-//                    List<Integer> colors1 = new ArrayList<>();
-//                    colors1.add(ColorTemplate.rgb("#db1414"));
-//                    set1.setColors(colors1);
-//                    set1.setLineWidth(2f);
-//                    set1.setCircleRadius(4f);
-//                    xx.add(set1);
-//                    xx.add(new LineDataSet(xxx, "Eranings"));
-//                    lineChart.setData(new LineData(dateData, xx));
-//                    lineChart.invalidate();//refresh
-
-
-
-                    ArrayList<Entry> dataset1 = new ArrayList<Entry>();
-                    dataset1.add(new Entry(1f, 0));
-                    dataset1.add(new Entry(2f, 1));
-                    dataset1.add(new Entry(3f, 2));
-                    dataset1.add(new Entry(4f, 3));
-                    dataset1.add(new Entry(5f, 4));
-                    dataset1.add(new Entry(6f, 5));
-                    dataset1.add(new Entry(7f, 6));
-                    ArrayList<Entry> dataset2 = new ArrayList<Entry>();
-                    dataset2.add(new Entry(3f, 0));
-                    dataset2.add(new Entry(4f, 2));
-                    dataset2.add(new Entry(5f, 4));
-                    dataset2.add(new Entry(6f, 5));
-                    dataset2.add(new Entry(7f, 6));
-                    dataset2.add(new Entry(8f, 7));
-                    dataset2.add(new Entry(9f, 8));
-                    String[] xAxis = new String[] {"0", "1", "2", "3", "4", "5", "6", "8", "9"};
-
-
-                    ArrayList<ILineDataSet> lines = new ArrayList<ILineDataSet> ();
-
-                    LineDataSet lDataSet1 = new LineDataSet(dataset1, "DataSet1");
-                    lDataSet1.setColor(Color.RED);
-                    lDataSet1.setCircleColor(Color.RED);
-                    lines.add(lDataSet1);
-
-                    LineDataSet lDataSet2 = new LineDataSet(dataset2, "DataSet2");
-                    lines.add(lDataSet2);
-
-
-                    LineData xxxxxxxx = new LineData(xAxis, lines);
-                    lineChart.setData(xxxxxxxx);
-                }
-            });
-
-
-//        lineDataSet.setColor(Color.parseColor("#000000"));
-//        lineDataSet.setValueTextColor(Color.parseColor("#FFF"));
+        LineData data = new LineData(set1, set2);
+        lineChart.getAxisLeft().setDrawGridLines(false);
+//        lineChart.getXAxis().setDrawGridLines(false);
+        lineChart.setData(data);
     }
 
     private void CheckUserExisted() {
