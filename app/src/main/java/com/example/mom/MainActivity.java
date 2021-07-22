@@ -98,11 +98,12 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     ExchangeAdapter adapter;
     GroupUserAdapter groupUseradapter;
     List<User> users = new ArrayList<>();
-    View add;
+    View add, swap;
     String grID;
     HashMap<String, Object> updateData = new HashMap<>();
     LineChart lineChart;
     boolean fab_clicked = false;
+    int CurrentViewMode = 1;
 
     //Animation
     public static Animation rotate_out_fab, rotate_in_fab, to_bottom, to_top;
@@ -127,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         groupUseradapter            = new GroupUserAdapter(getApplicationContext());
         progressDialog              = new ProgressDialog(this);
         add                         = findViewById(R.id.add_gr);
+        swap                        = findViewById(R.id.swap_view);
         lineChart                   = binding.chart;
         sidebar.setDrawerListener(this);
         binding.groupUser.setAdapter(groupUseradapter);
@@ -140,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         //Init Data
         DrawLineChart();
 //        GetInvoiceData();
-        add.setVisibility(View.GONE);
 
         //Check User existed
         CheckUserExisted();
@@ -152,27 +153,30 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         super.onStart();
         //Open sidebar when onclick sidebar icon
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
-
         add.setOnClickListener(v -> AddUsertoGroup());
-
-        mainFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fab_clicked = !fab_clicked;
-                System.out.println("Clicked: "+fab_clicked);
-                if (fab_clicked) {
-                    v.startAnimation(rotate_out_fab);
-                    handWriterBill.startAnimation(to_top);
-                    scanQR.startAnimation(to_top);
-                    handWriterBill.setVisibility(View.VISIBLE);
-                    scanQR.setVisibility(View.VISIBLE);
-                } else {
-                    v.startAnimation(rotate_in_fab);
-                    handWriterBill.startAnimation(to_bottom);
-                    scanQR.startAnimation(to_bottom);
-                    handWriterBill.setVisibility(View.GONE);
-                    scanQR.setVisibility(View.GONE);
-                }
+        swap.setOnClickListener(v -> {
+            if (CurrentViewMode == 1) {
+                GetInvoiceData();
+            }
+            else {
+                DrawLineChart();
+            }
+        });
+        mainFAB.setOnClickListener(v -> {
+            fab_clicked = !fab_clicked;
+            System.out.println("Clicked: "+fab_clicked);
+            if (fab_clicked) {
+                v.startAnimation(rotate_out_fab);
+                handWriterBill.startAnimation(to_top);
+                scanQR.startAnimation(to_top);
+                handWriterBill.setVisibility(View.VISIBLE);
+                scanQR.setVisibility(View.VISIBLE);
+            } else {
+                v.startAnimation(rotate_in_fab);
+                handWriterBill.startAnimation(to_bottom);
+                scanQR.startAnimation(to_bottom);
+                handWriterBill.setVisibility(View.GONE);
+                scanQR.setVisibility(View.GONE);
             }
         });
 
@@ -187,12 +191,10 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     break;
                 case R.id.exchange_history:
                     item.setChecked(true);
-                    add.setVisibility(View.GONE);
                     GetInvoiceData();
                     break;
                 case R.id.group_history:
                     item.setChecked(true);
-                    add.setVisibility(View.VISIBLE);
                     GroupUserView();
                     break;
                 case R.id.create_group:
@@ -221,31 +223,28 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             startActivity(DetailUserPaymentEvents);
         });
 
-        binding.groupUser.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                User x = users.get(position);
-                new MaterialAlertDialogBuilder(MainActivity.this, R.style.Body_ThemeOverlay_MaterialComponents_MaterialAlertDialog)
-                        .setTitle("Delete")
-                        .setMessage("Remove "+x.getEmail()+"?")
-                        .setNegativeButton("Cancel", null)
-                        .setPositiveButton("Remove", (dialog, which) -> db.collection(GROUP_USERS).document(grID)
-                                .update("members", FieldValue.arrayRemove(x.getUniqueID()))
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        groupUseradapter.removeData(position);
-                                        Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show();
-                                    }
-                                })).show();
-                return true;
-            }
+        binding.groupUser.setOnItemLongClickListener((parent, view, position, id) -> {
+            User x = users.get(position);
+            new MaterialAlertDialogBuilder(MainActivity.this, R.style.Body_ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                    .setTitle("Delete")
+                    .setMessage("Remove "+x.getEmail()+"?")
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Remove", (dialog, which) -> db.collection(GROUP_USERS).document(grID)
+                            .update("members", FieldValue.arrayRemove(x.getUniqueID()))
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    groupUseradapter.removeData(position);
+                                    Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show();
+                                }
+                            })).show();
+            return true;
         });
 
         //Set onclick FAB events
@@ -260,6 +259,36 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         signout.setOnClickListener(v -> SignOut());
     }
 
+    private void ChangeMode(int ViewMode, int size) {
+        CurrentViewMode = ViewMode;
+        if (size == 0 && ViewMode != 1) {
+            binding.emptyInvoice.setVisibility(View.VISIBLE);
+            binding.emptyInvoice.setText((ViewMode == 2) ? "No exchange!" : "No user in group!");
+        }
+        if (ViewMode == 1) {
+            //Chart mode
+            swap.setVisibility(View.VISIBLE);
+            add.setVisibility(View.GONE);
+            binding.emptyInvoice.setVisibility(View.GONE);
+            binding.exchangeRcv.setVisibility(View.GONE);
+        }
+
+        if (ViewMode == 2) {
+            //Personal mode
+            swap.setVisibility(View.VISIBLE);
+            add.setVisibility(View.GONE);
+            binding.exchangeRcv.setVisibility(View.VISIBLE);
+            binding.chart.setVisibility(View.GONE);
+        }
+
+        if (ViewMode == 3) {
+            //Group mode
+            swap.setVisibility(View.GONE);
+            add.setVisibility(View.VISIBLE);
+            binding.chart.setVisibility(View.GONE);
+        }
+    }
+
     private void initAnimation() {
         rotate_out_fab = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_out_fab);
         rotate_in_fab = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_in_fab);
@@ -268,6 +297,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     }
 
     private void DrawLineChart() {
+        ChangeMode(1, 1);
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
         List<String> xAxisValues = new ArrayList<>(Arrays.asList("Jan", "Feb", "March", "April", "May", "June","July", "August", "September", "October", "November", "Decemeber"));
         List<Entry> incomeEntries = getIncomeEntries();
@@ -372,8 +402,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         return incomeEntries.subList(0, 12);
     }
 
-
-
     private void CheckUserExisted() {
         updateData.clear();
         updateData.put("unit", "VND");
@@ -415,24 +443,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         }
                     }
                 });
-    }
-
-    private void ChangeMode(boolean isGroupUserMode, int size) {
-        if (size == 0) {
-            binding.groupUser.setVisibility(View.GONE);
-            binding.exchangeRcv.setVisibility(View.GONE);
-            binding.emptyInvoice.setText(isGroupUserMode ? "No group!" : "No exchange!");
-            binding.emptyInvoice.setVisibility(View.VISIBLE);
-        } else {
-            binding.emptyInvoice.setVisibility(View.GONE);
-            if (isGroupUserMode) {
-                binding.groupUser.setVisibility(View.VISIBLE);
-                binding.exchangeRcv.setVisibility(View.GONE);
-            } else {
-                binding.groupUser.setVisibility(View.GONE);
-                binding.exchangeRcv.setVisibility(View.VISIBLE);
-            }
-        }
     }
 
     private void CreateGroup() {
@@ -505,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             .addOnSuccessListener(queryDocumentSnapshots -> {
                 if (queryDocumentSnapshots.size() == 0) {
                     add.setVisibility(View.GONE);
-                    ChangeMode(true, 0);
+                    ChangeMode(3, 0);
                     progressDialog.dismiss();
                     return;
                 }
@@ -526,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                                             //Get all users
                                             groupUseradapter.setData(users);
                                         }
-                                        ChangeMode(true, users.size());
+                                        ChangeMode(3, users.size());
                                     }
                                 }
                             })
@@ -569,7 +579,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         Events x = i.toObject(Events.class);
                         data.add(x);
                     }
-                    ChangeMode(false, data.size());
+                    ChangeMode(2, data.size());
                     Collections.reverse(data); //sort by timestamp
                     adapter.setData(data);
                 } else {
