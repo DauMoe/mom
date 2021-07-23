@@ -50,32 +50,21 @@ public class CreateGroupDialog extends DialogFragment {
         cancel.setOnClickListener(x -> dismiss());
         create.setOnClickListener(x -> {
             db.collection(DefineVars.GROUP_USERS).whereEqualTo("host", user.getUid()).limit(1).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            if (queryDocumentSnapshots.size()>0) {
-                                Toast.makeText(getContext(), "You are own another group!", Toast.LENGTH_LONG).show();
-                                dismiss();
-                                return;
-                            }
-                            Members.clear();
-                            Members.add(user.getUid());
-                            db.collection(DefineVars.GROUP_USERS).document().set(new GroupUsers(gr_name.getEditText().getText().toString(), user.getUid(), Members))
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Toast.makeText(getContext(), "Create group successful!", Toast.LENGTH_LONG).show();
-                                            startActivity(new Intent(getContext(), MainActivity.class));
-                                            ((Activity) getContext()).finish();
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(getContext(), "Create group failed!", Toast.LENGTH_LONG).show();
-                                        }
-                                    });
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (queryDocumentSnapshots.size()>0) {
+                            Toast.makeText(getContext(), "You are own another group!", Toast.LENGTH_LONG).show();
+                            dismiss();
+                            return;
                         }
+                        Members.clear();
+                        Members.add(user.getUid());
+                        db.collection(DefineVars.GROUP_USERS).document().set(new GroupUsers(gr_name.getEditText().getText().toString(), user.getUid(), Members))
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(getContext(), "Create group successful!", Toast.LENGTH_LONG).show();
+                                    startActivity(new Intent(getContext(), MainActivity.class));
+                                    ((Activity) getContext()).finish();
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(getContext(), "Create group failed!", Toast.LENGTH_LONG).show());
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override

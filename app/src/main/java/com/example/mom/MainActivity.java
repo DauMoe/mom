@@ -64,6 +64,7 @@ import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -71,13 +72,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.mom.DefineVars.DETAIL_PAYMENTS;
-import static com.example.mom.DefineVars.GROUP_USERS;
-import static com.example.mom.DefineVars.MOM_BILL;
-import static com.example.mom.DefineVars.PAYMENT_EVENTS;
-import static com.example.mom.DefineVars.PAYMENT_INFO;
-import static com.example.mom.DefineVars.USERS;
-import static com.example.mom.DefineVars.listMonth;
+import static com.example.mom.DefineVars.*;
 
 public class MainActivity extends AppCompatActivity implements DrawerLayout.DrawerListener {
     private ActivityMainBinding binding;
@@ -164,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         });
         mainFAB.setOnClickListener(v -> {
             fab_clicked = !fab_clicked;
-            System.out.println("Clicked: "+fab_clicked);
+//            System.out.println("Clicked: "+fab_clicked);
             if (fab_clicked) {
                 v.startAnimation(rotate_out_fab);
                 handWriterBill.startAnimation(to_top);
@@ -231,19 +226,11 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     .setNegativeButton("Cancel", null)
                     .setPositiveButton("Remove", (dialog, which) -> db.collection(GROUP_USERS).document(grID)
                             .update("members", FieldValue.arrayRemove(x.getUniqueID()))
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    groupUseradapter.removeData(position);
-                                    Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
-                                }
+                            .addOnSuccessListener(aVoid -> {
+                                groupUseradapter.removeData(position);
+                                Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
                             })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show();
-                                }
-                            })).show();
+                            .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show())).show();
             return true;
         });
 
@@ -271,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             add.setVisibility(View.GONE);
             binding.emptyInvoice.setVisibility(View.GONE);
             binding.exchangeRcv.setVisibility(View.GONE);
+            binding.chart.setVisibility(View.VISIBLE);
         }
 
         if (ViewMode == 2) {
@@ -296,110 +284,109 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         to_top = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.translate_to_top);
     }
 
+    List<Entry> earnings= new ArrayList<>();
+    List<Entry> consuming = new ArrayList<>();
+    List<String> dateData = new ArrayList<>();
+    ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+
     private void DrawLineChart() {
         ChangeMode(1, 1);
-        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-        List<String> xAxisValues = new ArrayList<>(Arrays.asList("Jan", "Feb", "March", "April", "May", "June","July", "August", "September", "October", "November", "Decemeber"));
-        List<Entry> incomeEntries = getIncomeEntries();
-        List<Entry> incomeEntries2 = getIncomeEntries2();
-        dataSets = new ArrayList<>();
-        LineDataSet set1;
-        LineDataSet set2;
+        db.collection(PAYMENT_EVENTS).whereEqualTo("uniqueID", userID).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        earnings.clear();
+                        consuming.clear();
+                        dateData.clear();
+                        data.clear();
+                        for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                            Events c = i.toObject(Events.class);
+                            data.add(c);
+                        }
 
-        set1 = new LineDataSet(incomeEntries, "Income");
-        set1.setColor(Color.rgb(65, 168, 121));
-        set1.setValueTextColor(Color.rgb(55, 70, 73));
-        set1.setValueTextSize(10f);
-        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        dataSets.add(set1);
+                        Collections.sort(data); // from least to greatest
+                        dateData.clear();
+                        String preDateState = DateFormatter(data.get(0).getTime());
+                        dateData.add(DateFormatter(data.get(0).getTime()));
+                        for (Events i: data) {
+                            //Get unique date array
+                            if (!DateFormatter(i.getTime()).equals(preDateState)) {
+                                preDateState = DateFormatter(i.getTime());
+                                dateData.add(DateFormatter(i.getTime()));
+                            }
+                        }
+                        long EarningsAmountTemp = 0L;
+                        long ConsumingAmountTemp = 0L;
+                        preDateState = DateFormatter(data.get(0).getTime());
+                        for (Events i: data) {
+                            if (DateFormatter(i.getTime()).equals(preDateState)){
+                                if (i.isEarning()) EarningsAmountTemp += i.getAmount();
+                                else ConsumingAmountTemp += i.getAmount();
+                            } else {
+                                if (EarningsAmountTemp > 0) {
+                                    earnings.add(new Entry((int)dateData.indexOf(preDateState), EarningsAmountTemp));
+                                }
+                                if (ConsumingAmountTemp > 0) {
+                                    consuming.add(new Entry((int)dateData.indexOf(preDateState), ConsumingAmountTemp));
+                                }
+                                if (i.isEarning()) {
+                                    EarningsAmountTemp = i.getAmount();
+                                    ConsumingAmountTemp = 0L;
+                                }
+                                else {
+                                    ConsumingAmountTemp = i.getAmount();
+                                    EarningsAmountTemp = 0L;
+                                }
+                                preDateState = DateFormatter(i.getTime());
+                            }
+                        }
+                        earnings.add(new Entry(dateData.indexOf(preDateState), EarningsAmountTemp));
+                        consuming.add(new Entry(dateData.indexOf(preDateState), ConsumingAmountTemp));
 
-        set2 = new LineDataSet(incomeEntries2, "Outcome");
-        set2.setColor(Color.rgb(163, 122, 118));
-        set2.setValueTextColor(Color.rgb(55, 70, 73));
-        set2.setValueTextSize(10f);
-        set2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        dataSets.add(set2);
+                        LineDataSet set1 = new LineDataSet(earnings, "Earnings");
+                        set1.setColor(Color.rgb(31, 236, 180));
+                        set1.setValueTextColor(Color.rgb(7, 169, 125));
+                        set1.setValueTextSize(10f);
+                        set1.setMode(LineDataSet.Mode.LINEAR);
+                        dataSets.add(set1);
 
-            //customization
-//        lineChart.setTouchEnabled(true);
-//        lineChart.setDragEnabled(true);
-//        lineChart.setScaleEnabled(false);
-//        lineChart.setPinchZoom(false);
-//        lineChart.setDrawGridBackground(false);
-//        lineChart.setExtraLeftOffset(15);
-//        lineChart.setExtraRightOffset(15);
+                        LineDataSet set2 = new LineDataSet(consuming, "Consuming");
+                        set2.setColor(Color.rgb(236, 68, 31));
+                        set2.setValueTextColor(Color.rgb(160, 5, 10));
+                        set2.setValueTextSize(10f);
+                        set2.setMode(LineDataSet.Mode.LINEAR);
+                        dataSets.add(set2);
 
-            //to hide background lines
-//        lineChart.getXAxis().setDrawGridLines(false);
-//        lineChart.getAxisLeft().setDrawGridLines(false);
-//        lineChart.getAxisRight().setDrawGridLines(false);
+                        YAxis rightYAxis = lineChart.getAxisRight();
+                        rightYAxis.setEnabled(false);
+                        YAxis leftYAxis = lineChart.getAxisLeft();
+                        leftYAxis.setEnabled(false);
+                        XAxis topXAxis = lineChart.getXAxis();
+                        topXAxis.setEnabled(false);
 
-            //to hide right Y and top X border
-        YAxis rightYAxis = lineChart.getAxisRight();
-        rightYAxis.setEnabled(false);
-        YAxis leftYAxis = lineChart.getAxisLeft();
-        leftYAxis.setEnabled(false);
-        XAxis topXAxis = lineChart.getXAxis();
-        topXAxis.setEnabled(false);
+                        XAxis xAxis = lineChart.getXAxis();
+//                        xAxis.setGranularity(1f);
+//                        xAxis.setCenterAxisLabels(true);
+                        xAxis.setEnabled(true);
+//                        xAxis.setDrawGridLines(false);
+                        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
-
-        XAxis xAxis = lineChart.getXAxis();
-        xAxis.setGranularity(1f);
-        xAxis.setCenterAxisLabels(true);
-        xAxis.setEnabled(true);
-        xAxis.setDrawGridLines(false);
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-
-        set1.setLineWidth(3f);
-        set2.setLineWidth(3f);
+                        set1.setLineWidth(2f);
+                        set2.setLineWidth(2f);
 //        set1.setCircleRadius(3f);
 //        set1.setDrawValues(false);
 
-        //String setter in x-Axis
-        lineChart.getXAxis().setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(xAxisValues));
+                        //String setter in x-Axis
+                        lineChart.getXAxis().setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(dateData));
 
-        LineData data = new LineData(dataSets);
-        lineChart.setData(data);
-        lineChart.animateX(2000);
-        lineChart.invalidate();
-        lineChart.getLegend().setEnabled(false);
-        lineChart.getDescription().setEnabled(false);
-    }
-
-    private List<Entry> getIncomeEntries() {
-        ArrayList<Entry> incomeEntries = new ArrayList<>();
-
-        incomeEntries.add(new Entry(1, 123));
-        incomeEntries.add(new Entry(2, 5433));
-        incomeEntries.add(new Entry(3, 2414));
-        incomeEntries.add(new Entry(4, 572));
-        incomeEntries.add(new Entry(5, 1832));
-        incomeEntries.add(new Entry(6, 832));
-        incomeEntries.add(new Entry(7, 721));
-        incomeEntries.add(new Entry(8, 973));
-        incomeEntries.add(new Entry(9, 5123));
-        incomeEntries.add(new Entry(10, 1258));
-        incomeEntries.add(new Entry(11, 4355));
-        incomeEntries.add(new Entry(12, 2417));
-        return incomeEntries.subList(0, 12);
-    }
-
-    private List<Entry> getIncomeEntries2() {
-        ArrayList<Entry> incomeEntries = new ArrayList<>();
-
-        incomeEntries.add(new Entry(1, 11400));
-        incomeEntries.add(new Entry(2, 1490));
-        incomeEntries.add(new Entry(3, 1290));
-        incomeEntries.add(new Entry(4, 7300));
-        incomeEntries.add(new Entry(5, 4890));
-        incomeEntries.add(new Entry(6, 4600));
-        incomeEntries.add(new Entry(7, 8100));
-        incomeEntries.add(new Entry(8, 7134));
-        incomeEntries.add(new Entry(9, 4407));
-        incomeEntries.add(new Entry(10, 8862));
-        incomeEntries.add(new Entry(11, 4455));
-        incomeEntries.add(new Entry(12, 6100));
-        return incomeEntries.subList(0, 12);
+                        LineData data = new LineData(dataSets);
+                        lineChart.setData(data);
+                        lineChart.animateX(2000);
+                        lineChart.invalidate();
+                        lineChart.getLegend().setEnabled(true);
+                        lineChart.getDescription().setText("Date");
+                    }
+                });
     }
 
     private void CheckUserExisted() {

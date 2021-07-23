@@ -3,6 +3,8 @@ package com.example.mom;
 import android.view.animation.Animation;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 public class DefineVars {
@@ -57,4 +59,9 @@ public class DefineVars {
         return x;
     }
 
+    private static Calendar calendar = Calendar.getInstance();
+    public static final String DateFormatter(long timestamp) {
+        calendar.setTimeInMillis(timestamp);
+        return listMonth[calendar.get(Calendar.MONTH)] + " "+calendar.get(Calendar.DAY_OF_MONTH);
+    }
 }
