@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     private List<Events> data = new ArrayList<>();
     protected FirebaseUser user;
     protected FirebaseFirestore db;
-    String displayName, displayEmail, userID;
+    String displayName, displayEmail, userID, preDateState;
     Uri avaUrl;
     TextView dpEmail, dpUser;
     ProgressDialog progressDialog;
@@ -99,6 +99,12 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     LineChart lineChart;
     boolean fab_clicked = false;
     int CurrentViewMode = 1;
+    List<Entry> earnings= new ArrayList<>();
+    List<Entry> consuming = new ArrayList<>();
+    List<String> dateData = new ArrayList<>();
+    ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+    LineDataSet set1, set2;
+    long EarningsAmountTemp, ConsumingAmountTemp;
 
     //Animation
     public static Animation rotate_out_fab, rotate_in_fab, to_bottom, to_top;
@@ -147,19 +153,19 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     protected void onStart() {
         super.onStart();
         //Open sidebar when onclick sidebar icon
+        handWriterBill.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, AddInvoiceActivity.class)));
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
+        signout.setOnClickListener(v -> SignOut());
         add.setOnClickListener(v -> AddUsertoGroup());
         swap.setOnClickListener(v -> {
             if (CurrentViewMode == 1) {
                 GetInvoiceData();
-            }
-            else {
+            } else {
                 DrawLineChart();
             }
         });
         mainFAB.setOnClickListener(v -> {
             fab_clicked = !fab_clicked;
-//            System.out.println("Clicked: "+fab_clicked);
             if (fab_clicked) {
                 v.startAnimation(rotate_out_fab);
                 handWriterBill.startAnimation(to_top);
@@ -191,10 +197,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 case R.id.group_history:
                     item.setChecked(true);
                     GroupUserView();
-                    break;
-                case R.id.create_group:
-                    item.setChecked(true);
-                    CreateGroup();
                     break;
                 case R.id.change_pins:
                     item.setChecked(true);
@@ -243,7 +245,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             intentIntegrator.setCaptureActivity(Capture.class);
             intentIntegrator.initiateScan();
         });
-        signout.setOnClickListener(v -> SignOut());
+
+
     }
 
     private void ChangeMode(int ViewMode, int size) {
@@ -284,13 +287,10 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         to_top = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.translate_to_top);
     }
 
-    List<Entry> earnings= new ArrayList<>();
-    List<Entry> consuming = new ArrayList<>();
-    List<String> dateData = new ArrayList<>();
-    ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-
     private void DrawLineChart() {
         ChangeMode(1, 1);
+        progressDialog.setMessage("Getting data....");
+        progressDialog.show();
         db.collection(PAYMENT_EVENTS).whereEqualTo("uniqueID", userID).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -299,14 +299,13 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         consuming.clear();
                         dateData.clear();
                         data.clear();
+                        dataSets.clear();
                         for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
                             Events c = i.toObject(Events.class);
                             data.add(c);
                         }
-
                         Collections.sort(data); // from least to greatest
-                        dateData.clear();
-                        String preDateState = DateFormatter(data.get(0).getTime());
+                        preDateState = DateFormatter(data.get(0).getTime());
                         dateData.add(DateFormatter(data.get(0).getTime()));
                         for (Events i: data) {
                             //Get unique date array
@@ -315,8 +314,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                                 dateData.add(DateFormatter(i.getTime()));
                             }
                         }
-                        long EarningsAmountTemp = 0L;
-                        long ConsumingAmountTemp = 0L;
+                        EarningsAmountTemp = 0L;
+                        ConsumingAmountTemp = 0L;
                         preDateState = DateFormatter(data.get(0).getTime());
                         for (Events i: data) {
                             if (DateFormatter(i.getTime()).equals(preDateState)){
@@ -343,14 +342,14 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         earnings.add(new Entry(dateData.indexOf(preDateState), EarningsAmountTemp));
                         consuming.add(new Entry(dateData.indexOf(preDateState), ConsumingAmountTemp));
 
-                        LineDataSet set1 = new LineDataSet(earnings, "Earnings");
+                        set1 = new LineDataSet(earnings, "Earnings");
                         set1.setColor(Color.rgb(31, 236, 180));
                         set1.setValueTextColor(Color.rgb(7, 169, 125));
                         set1.setValueTextSize(10f);
                         set1.setMode(LineDataSet.Mode.LINEAR);
                         dataSets.add(set1);
 
-                        LineDataSet set2 = new LineDataSet(consuming, "Consuming");
+                        set2 = new LineDataSet(consuming, "Consuming");
                         set2.setColor(Color.rgb(236, 68, 31));
                         set2.setValueTextColor(Color.rgb(160, 5, 10));
                         set2.setValueTextSize(10f);
@@ -373,8 +372,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
                         set1.setLineWidth(2f);
                         set2.setLineWidth(2f);
-//        set1.setCircleRadius(3f);
-//        set1.setDrawValues(false);
+//                      set1.setCircleRadius(3f);
+//                      set1.setDrawValues(false);
 
                         //String setter in x-Axis
                         lineChart.getXAxis().setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(dateData));
@@ -385,6 +384,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         lineChart.invalidate();
                         lineChart.getLegend().setEnabled(true);
                         lineChart.getDescription().setText("Date");
+                        progressDialog.dismiss();
                     }
                 });
     }
@@ -432,11 +432,11 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 });
     }
 
-    private void CreateGroup() {
-        FragmentManager fm              = getSupportFragmentManager();
-        CreateGroupDialog customDialog  = new CreateGroupDialog();
-        customDialog.show(fm, "");
-    }
+//    private void CreateGroup() {
+//        FragmentManager fm              = getSupportFragmentManager();
+//        CreateGroupDialog customDialog  = new CreateGroupDialog();
+//        customDialog.show(fm, "");
+//    }
 
     private void AddUsertoGroup() {
         LayoutInflater inflater = LayoutInflater.from(this);

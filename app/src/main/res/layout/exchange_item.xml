@@ -7,6 +7,7 @@
         android:gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#FAFAFC"
         android:padding="10dp"
         xmlns:android="http://schemas.android.com/apk/res/android">
         <LinearLayout android:orientation="vertical"
@@ -104,10 +105,10 @@
         </LinearLayout>
         <ImageView
             android:id="@+id/exchange_earning"
-            android:src="@drawable/ic_down_arrown"
+            android:src="@drawable/ic_paid"
             android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="20dp"/>
+            android:layout_width="30dp"
+            android:layout_height="match_parent"/>
     </LinearLayout>
     <ImageView
         android:layout_marginLeft="5dp"

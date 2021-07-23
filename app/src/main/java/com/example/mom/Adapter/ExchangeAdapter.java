@@ -53,9 +53,9 @@ public class ExchangeAdapter extends RecyclerView.Adapter<ExchangeAdapter.Exchan
         paid_on = listMonth[calendar.get(Calendar.MONTH)] + " "+calendar.get(Calendar.DAY_OF_MONTH)+", "+calendar.get(Calendar.YEAR) + " "+formatter.format(Long.valueOf(item.getTime()));
         holder.PaidOn.setText(paid_on);
         if (item.isEarning()) {
-            holder.ExchangeEarning.setImageResource(R.drawable.ic_up_arrown);
+            holder.ExchangeEarning.setImageResource(R.drawable.ic_chance);
         } else {
-            holder.ExchangeEarning.setImageResource(R.drawable.ic_down_arrown);
+            holder.ExchangeEarning.setImageResource(R.drawable.ic_paid);
         }
     }
 

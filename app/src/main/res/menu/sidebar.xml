@@ -29,10 +29,6 @@
                 android:icon="@drawable/ic_chart"
                 android:title="Group"/>
 
-            <item
-                android:id="@+id/create_group"
-                android:icon="@drawable/ic_group"
-                android:title="Create group"/>
     </group>
 
     <group
