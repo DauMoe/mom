@@ -307,6 +307,15 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         ChangeMode(1, 1);
         progressDialog.setMessage("Getting data....");
         progressDialog.show();
+        db.collection(USERS).whereEqualTo("uniqueID", userID).limit(1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                    User f = i.toObject(User.class);
+                    sidebar_menu.setTitle((f.getAmount() + " "+ f.getUnit()));
+                }
+            }
+        });
         db.collection(PAYMENT_EVENTS).whereEqualTo("uniqueID", userID).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
