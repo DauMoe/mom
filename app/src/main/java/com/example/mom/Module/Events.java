@@ -1,7 +1,7 @@
 package com.example.mom.Module;
 
 public class Events implements  Comparable<Events>{
-    private String billID, uniqueID, unit, from;
+    private String billID, uniqueID, unit, from, note;
     private boolean earning;
     private long time, amount;
     private int groupID;
@@ -9,11 +9,12 @@ public class Events implements  Comparable<Events>{
     public Events() {
     }
 
-    public Events(String billID, String uniqueID, String unit, String from, boolean earnings, long time, long amount, int groupID) {
+    public Events(String billID, String uniqueID, String unit, String from, String note, boolean earning, long time, long amount, int groupID) {
         this.billID = billID;
         this.uniqueID = uniqueID;
         this.unit = unit;
         this.from = from;
+        this.note = note;
         this.earning = earning;
         this.time = time;
         this.amount = amount;
@@ -50,6 +51,14 @@ public class Events implements  Comparable<Events>{
 
     public void setFrom(String from) {
         this.from = from;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public boolean isEarning() {

@@ -42,19 +42,23 @@ public class CustomDialog extends DialogFragment {
     Long RechangeAmount = 0L;
     String userID, uniqueID;
     boolean isEarnings;
-    String from;
+    String from, pre, note = "", cate = "";
 
-    public CustomDialog(Long RechangeAmount, String uID, Boolean isEarnings) {
+    public CustomDialog(Long RechangeAmount, String uID, Boolean isEarnings, String cate) {
         this.RechangeAmount     = RechangeAmount;
         this.uniqueID           = uID;
         this.isEarnings         = isEarnings;
+        this.cate               = cate;
     }
 
-    public CustomDialog(Long RechangeAmount, String uID, Boolean isEarnings, String from) {
+    public CustomDialog(Long RechangeAmount, String uID, Boolean isEarnings, String from, String prefix, String note, String cate) {
         this.RechangeAmount     = RechangeAmount;
         this.uniqueID           = uID;
         this.isEarnings         = isEarnings;
         this.from               = from;
+        this.pre                = prefix;
+        this.note               = note;
+        this.cate               = cate;
     }
 
     @Nullable
@@ -67,38 +71,23 @@ public class CustomDialog extends DialogFragment {
         db          = FirebaseFirestore.getInstance();
         getDialog().setTitle("Authen");
 
-        pin_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        pin_cancel.setOnClickListener(v -> dismiss());
 
-        pin_ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                db.collection(USERS).whereEqualTo("uniqueID", uniqueID)
-                    .limit(1)
-                    .get()
-                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                        for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
-                            User x = i.toObject(User.class);
-                            userID = i.getId();
-                            if (authen_pin.getOTP().equals(x.getPIN())) {
-                                updateAmount(x.getAmount());
-                            } else {
-                                Toast.makeText(getContext(), "Wrong PIN", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getContext(), "Get user failed!", Toast.LENGTH_LONG).show();
-                        }
-                    });
-            }
-        });
+        pin_ok.setOnClickListener(v -> db.collection(USERS).whereEqualTo("uniqueID", uniqueID)
+            .limit(1)
+            .get()
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+                for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                    User x = i.toObject(User.class);
+                    userID = i.getId();
+                    if (authen_pin.getOTP().equals(x.getPIN())) {
+                        updateAmount(x.getAmount());
+                    } else {
+                        Toast.makeText(getContext(), "Wrong PIN", Toast.LENGTH_LONG).show();
+                    }
+                }
+            })
+            .addOnFailureListener(e -> Toast.makeText(getContext(), "Get user failed!", Toast.LENGTH_LONG).show()));
         return view;
     }
 
@@ -115,32 +104,25 @@ public class CustomDialog extends DialogFragment {
         if (currentAmount >= RechangeAmount) {
             updateData.put("amount", (currentAmount-RechangeAmount));
             db.collection(USERS).document(userID).update(updateData)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            updateData.clear();
-                            updateData.clear();
-                            updateData.put("earning", false);
-                            updateData.put("time", Calendar.getInstance().getTimeInMillis());
-                            updateData.put("uniqueID", uniqueID);
-                            updateData.put("unit", "VND");
-                            updateData.put("groupID", 0);
-                            updateData.put("from", from);
-                            updateData.put("amount", (currentAmount-RechangeAmount));
-                            updateData.put("billID", GenBillID("RF"));
-                            db.collection(PAYMENT_EVENTS).document().set(updateData);
-                            //Payment done
-                            Toast.makeText(getContext(), "Update amount successful!", Toast.LENGTH_LONG).show();
-                            startActivity(new Intent(getContext(), MainActivity.class));
-                            ((Activity) getContext()).finish();
-                        }
+                    .addOnSuccessListener(aVoid -> {
+                        updateData.clear();
+                        updateData.clear();
+                        updateData.put("earning", false);
+                        updateData.put("time", Calendar.getInstance().getTimeInMillis());
+                        updateData.put("uniqueID", uniqueID);
+                        updateData.put("unit", "VND");
+                        updateData.put("from", from);
+                        updateData.put("amount", RechangeAmount);
+                        updateData.put("billID", GenBillID(pre));
+                        if (!note.isEmpty()) updateData.put("note", note);
+                        if (!cate.isEmpty()) updateData.put("cate", cate);
+                        db.collection(PAYMENT_EVENTS).document().set(updateData);
+                        //Payment done
+                        Toast.makeText(getContext(), "Update amount successful!", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(getContext(), MainActivity.class));
+                        ((Activity) getContext()).finish();
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getContext(), "Update amount failed!", Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Update amount failed!", Toast.LENGTH_LONG).show());
 
         } else {
             Toast.makeText(getContext(), "Your balances is not enough", Toast.LENGTH_LONG).show();
@@ -150,32 +132,24 @@ public class CustomDialog extends DialogFragment {
     private void updateEarnings(Long currentAmount) {
         updateData.put("amount", (RechangeAmount+currentAmount));
         db.collection(USERS).document(userID).update(updateData)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        updateData.clear();
-                        updateData.put("earning", true);
-                        updateData.put("time", Calendar.getInstance().getTimeInMillis());
-                        updateData.put("uniqueID", uniqueID);
-                        updateData.put("unit", "VND");
-                        updateData.put("groupID", 0);
-                        updateData.put("from", "Bank account");
-                        updateData.put("amount", (RechangeAmount+currentAmount));
-                        updateData.put("billID", GenBillID("IN"));
-
-                        //Write to log
-                        db.collection(PAYMENT_EVENTS).document().set(updateData);
-                        //Payment done
-                        Toast.makeText(getContext(), "Update amount successful!", Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(getContext(), MainActivity.class));
-                        ((Activity) getContext()).finish();
-                    }
+                .addOnSuccessListener(aVoid -> {
+                    updateData.clear();
+                    updateData.put("earning", true);
+                    updateData.put("time", Calendar.getInstance().getTimeInMillis());
+                    updateData.put("uniqueID", uniqueID);
+                    updateData.put("unit", "VND");
+                    updateData.put("from", "Bank account");
+                    updateData.put("amount", (RechangeAmount+currentAmount));
+                    updateData.put("billID", GenBillID("IN"));
+                    if (!note.isEmpty()) updateData.put("note", note);
+                    if (!cate.isEmpty()) updateData.put("cate", cate);
+                    //Write to log
+                    db.collection(PAYMENT_EVENTS).document().set(updateData);
+                    //Payment done
+                    Toast.makeText(getContext(), "Update amount successful!", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(getContext(), MainActivity.class));
+                    ((Activity) getContext()).finish();
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(), "Update amount failed!", Toast.LENGTH_LONG).show();
-                    }
-                });
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Update amount failed!", Toast.LENGTH_LONG).show());
     }
 }

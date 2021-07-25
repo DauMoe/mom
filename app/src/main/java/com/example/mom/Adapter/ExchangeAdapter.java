@@ -52,6 +52,7 @@ public class ExchangeAdapter extends RecyclerView.Adapter<ExchangeAdapter.Exchan
         calendar.setTimeInMillis(item.getTime());
         paid_on = listMonth[calendar.get(Calendar.MONTH)] + " "+calendar.get(Calendar.DAY_OF_MONTH)+", "+calendar.get(Calendar.YEAR) + " "+formatter.format(Long.valueOf(item.getTime()));
         holder.PaidOn.setText(paid_on);
+        holder.Note.setText((item.getNote() != null) ? item.getNote(): "none");
         if (item.isEarning()) {
             holder.ExchangeEarning.setImageResource(R.drawable.ic_chance);
         } else {
@@ -66,7 +67,7 @@ public class ExchangeAdapter extends RecyclerView.Adapter<ExchangeAdapter.Exchan
     }
 
     public class ExchangeViewHolder extends RecyclerView.ViewHolder {
-        private MaterialTextView InvoiceID, PaidBy, PaidOn, Amount;
+        private MaterialTextView InvoiceID, PaidBy, PaidOn, Amount, Note;
         private ImageView ExchangeEarning;
         public ExchangeViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -75,6 +76,7 @@ public class ExchangeAdapter extends RecyclerView.Adapter<ExchangeAdapter.Exchan
             PaidOn          = itemView.findViewById(R.id.paid_on);
             Amount          = itemView.findViewById(R.id.paid_amount);
             ExchangeEarning = itemView.findViewById(R.id.exchange_earning);
+            Note            = itemView.findViewById(R.id.paid_note);
         }
     }
 }

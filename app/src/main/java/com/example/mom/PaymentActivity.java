@@ -117,44 +117,8 @@ public class PaymentActivity extends AppCompatActivity {
 
     private void AuthenWithPassword() {
         FragmentManager fm          = getSupportFragmentManager();
-        CustomDialog customDialog   = new CustomDialog(amount, user.getUid(), false, payment.getFrom());
+        CustomDialog customDialog   = new CustomDialog(amount, user.getUid(), false, payment.getFrom(), "QR", "From QR code!", "QR code");
         customDialog.show(fm, "");
-
-//        LayoutInflater inflater         = LayoutInflater.from(this);
-//        View v                          = inflater.inflate(R.layout.password_dialog, null);
-//        AlertDialog.Builder builder     = new AlertDialog.Builder(this);
-//        TextInputLayout password        = v.findViewById(R.id.pin_authen);
-//        builder.setView(v);
-//        db.collection(USERS)
-//            .whereEqualTo("uniqueID", user.getUid())
-//            .limit(1)
-//            .get()
-//            .addOnCompleteListener(task -> {
-//                if (task.isSuccessful()) {
-//                    for (QueryDocumentSnapshot i: task.getResult()) {
-//                        User x = i.toObject(User.class);
-//                        builder.setCancelable(true)
-//                            .setPositiveButton("Payment", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                    if (password.getEditText().getText().toString().equals(x.getPIN())) {
-//                                        updateAmount();
-//                                    } else {
-//                                        Toast.makeText(getApplicationContext(), "Wrong PIN", Toast.LENGTH_LONG).show();
-//                                    }
-//                                }
-//                            })
-//                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                    dialog.cancel();
-//                                }
-//                            });
-//                        AlertDialog dialog = builder.create();
-//                        dialog.show();
-//                    }
-//                }
-//            });
     }
 
     private void PaymentInvoice() {
@@ -169,9 +133,7 @@ public class PaymentActivity extends AppCompatActivity {
         }
     }
 
-
-
-    private void updateAmount() {
+    public void updateAmount() {
         db.collection(USERS)
             .whereEqualTo("uniqueID", user.getUid())
             .limit(1)
@@ -196,7 +158,7 @@ public class PaymentActivity extends AppCompatActivity {
                                         updateData.put("groupID", 0);
                                         updateData.put("from", payment.getFrom());
                                         updateData.put("amount", amount);
-                                        updateData.put("billID", GenBillID("RF"));
+                                        updateData.put("billID", GenBillID("QR"));
                                         db.collection(PAYMENT_EVENTS).document().set(updateData);
                                         //Payment done
                                         startActivity(new Intent(PaymentActivity.this, MainActivity.class));

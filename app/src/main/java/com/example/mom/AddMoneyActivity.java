@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.example.mom.Adapter.CustomDialog;
@@ -28,8 +29,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
 
@@ -44,6 +47,8 @@ public class AddMoneyActivity extends AppCompatActivity {
     FirebaseUser user;
     HashMap<String, Object> updateData = new HashMap<>();
     Random g = new Random();
+    List<String> list_cate = new ArrayList<>();
+    ArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +57,14 @@ public class AddMoneyActivity extends AppCompatActivity {
         executor                = ContextCompat.getMainExecutor(this);
         db                      = FirebaseFirestore.getInstance();
         user                    = FirebaseAuth.getInstance().getCurrentUser();
+        list_cate.clear();
+        db.collection(EARNING_CATE).get().addOnSuccessListener(queryDocumentSnapshots -> {
+            for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                list_cate.add(i.getString("name"));
+            }
+            adapter = new ArrayAdapter(this, R.layout.list_item, list_cate);
+            binding.earningsCateItem.setAdapter(adapter);
+        });
 
         //Biometric Authen Override
         biometricPrompt = new BiometricPrompt(AddMoneyActivity.this,
@@ -105,7 +118,7 @@ public class AddMoneyActivity extends AppCompatActivity {
 
     private void AuthenWithPassword() {
         FragmentManager fm          = getSupportFragmentManager();
-        CustomDialog customDialog   = new CustomDialog(Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())), user.getUid(), true);
+        CustomDialog customDialog   = new CustomDialog(Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())), user.getUid(), true, binding.earningsCateItem.getText().toString());
         customDialog.show(fm, "");
     }
 
@@ -122,31 +135,24 @@ public class AddMoneyActivity extends AppCompatActivity {
                         updateData.clear();
                         updateData.put("amount", g);
                         db.collection(USERS).document(i.getId()).update(updateData)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    updateData.clear();
-                                    updateData.put("earning", true);
-                                    updateData.put("time", Calendar.getInstance().getTimeInMillis());
-                                    updateData.put("uniqueID", user.getUid());
-                                    updateData.put("unit", "VND");
-                                    updateData.put("groupID", 0);
-                                    updateData.put("from", "Bank account");
-                                    updateData.put("amount", Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())));
-                                    updateData.put("billID", GenBillID("IN"));
-                                    db.collection(PAYMENT_EVENTS).document().set(updateData);
-                                    //Payment done
-                                    Toast.makeText(getApplicationContext(), "Update amount successful!", Toast.LENGTH_LONG).show();
-                                    startActivity(new Intent(AddMoneyActivity.this, MainActivity.class));
-                                    finish();
-                                }
+                            .addOnSuccessListener(aVoid -> {
+                                updateData.clear();
+                                updateData.put("earning", true);
+                                updateData.put("time", Calendar.getInstance().getTimeInMillis());
+                                updateData.put("uniqueID", user.getUid());
+                                updateData.put("unit", "VND");
+                                updateData.put("groupID", 0);
+                                updateData.put("from", "Bank account");
+                                updateData.put("amount", Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())));
+                                updateData.put("billID", GenBillID("IN"));
+                                updateData.put("cate", binding.earningsCateItem.getText().toString());
+                                db.collection(PAYMENT_EVENTS).document().set(updateData);
+                                //Payment done
+                                Toast.makeText(getApplicationContext(), "Update amount successful!", Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(AddMoneyActivity.this, MainActivity.class));
+                                finish();
                             })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(getApplicationContext(), "Update amount failed!", Toast.LENGTH_LONG).show();
-                                }
-                            });
+                            .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Update amount failed!", Toast.LENGTH_LONG).show());
                     }
                 }
             });

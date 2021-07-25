@@ -58,6 +58,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
@@ -262,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             binding.emptyInvoice.setVisibility(View.GONE);
             binding.exchangeRcv.setVisibility(View.GONE);
             binding.chart.setVisibility(View.VISIBLE);
+            binding.groupUser.setVisibility(View.GONE);
         }
 
         if (ViewMode == 2) {
@@ -270,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             add.setVisibility(View.GONE);
             binding.exchangeRcv.setVisibility(View.VISIBLE);
             binding.chart.setVisibility(View.GONE);
+            binding.groupUser.setVisibility(View.GONE);
         }
 
         if (ViewMode == 3) {
@@ -277,6 +280,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             swap.setVisibility(View.GONE);
             add.setVisibility(View.VISIBLE);
             binding.chart.setVisibility(View.GONE);
+            binding.exchangeRcv.setVisibility(View.GONE);
+            binding.groupUser.setVisibility(View.VISIBLE);
         }
     }
 
@@ -295,6 +300,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        progressDialog.dismiss();
                         earnings.clear();
                         consuming.clear();
                         dateData.clear();
@@ -304,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                             Events c = i.toObject(Events.class);
                             data.add(c);
                         }
+                        if (data.size() == 0) return;
                         Collections.sort(data); // from least to greatest
                         preDateState = DateFormatter(data.get(0).getTime());
                         dateData.add(DateFormatter(data.get(0).getTime()));
@@ -384,7 +391,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                         lineChart.invalidate();
                         lineChart.getLegend().setEnabled(true);
                         lineChart.getDescription().setText("Date");
-                        progressDialog.dismiss();
                     }
                 });
     }
@@ -495,6 +501,40 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     private void GroupUserView() {
         progressDialog.setMessage("Waiting...");
         progressDialog.show();
+
+        db.collection(GROUP_USERS).whereEqualTo("host", userID).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                users.clear();
+                for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                    GroupUsers x    = i.toObject(GroupUsers.class);
+                    if (x.getMembers().size() == 0) {
+                        ChangeMode(3, 0);
+                        progressDialog.dismiss();
+                        return;
+                    }
+                    for (String f: x.getMembers()) {
+                        db.collection(USERS).whereEqualTo("uniqueID", f).limit(1).get()
+                                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                        progressDialog.dismiss();
+                                        for (QueryDocumentSnapshot g: queryDocumentSnapshots) {
+                                            users.add(g.toObject(User.class));
+                                            if (users.size() == x.getMembers().size()) {
+                                                //Get all users
+                                                groupUseradapter.setData(users);
+                                            }
+                                            ChangeMode(3, users.size());
+                                        }
+                                    }
+                                });
+                    }
+                }
+            }
+        });
+
+
         db.collection(GROUP_USERS)
             .whereArrayContains("members", userID)
             .limit(1)

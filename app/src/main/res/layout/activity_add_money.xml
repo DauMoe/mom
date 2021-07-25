@@ -31,6 +31,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/rechange_amount"
                     android:hint="@string/rechange"
+                    app:startIconDrawable="@drawable/ic_money"
                     app:boxBackgroundColor="#EDEDED"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -39,6 +40,22 @@
                         android:inputType="numberDecimal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/earnings_cate"
+                    android:layout_marginTop="20dp"
+                    app:startIconDrawable="@drawable/ic_cate"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Categories">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/earnings_cate_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
