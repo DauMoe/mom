@@ -139,7 +139,7 @@ public class CustomDialog extends DialogFragment {
                     updateData.put("uniqueID", uniqueID);
                     updateData.put("unit", "VND");
                     updateData.put("from", "Bank account");
-                    updateData.put("amount", (RechangeAmount+currentAmount));
+                    updateData.put("amount", RechangeAmount);
                     updateData.put("billID", GenBillID("IN"));
                     if (!note.isEmpty()) updateData.put("note", note);
                     if (!cate.isEmpty()) updateData.put("cate", cate);

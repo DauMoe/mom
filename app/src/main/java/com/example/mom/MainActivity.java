@@ -143,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
         //Init Data
         DrawLineChart();
-//        GetInvoiceData();
 
         //Check User existed
         CheckUserExisted();
@@ -227,13 +226,22 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     .setTitle("Delete")
                     .setMessage("Remove "+x.getEmail()+"?")
                     .setNegativeButton("Cancel", null)
-                    .setPositiveButton("Remove", (dialog, which) -> db.collection(GROUP_USERS).document(grID)
-                            .update("members", FieldValue.arrayRemove(x.getUniqueID()))
-                            .addOnSuccessListener(aVoid -> {
-                                groupUseradapter.removeData(position);
-                                Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
-                            })
-                            .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show())).show();
+                    .setPositiveButton("Remove", (dialog, which) -> {
+                        db.collection(GROUP_USERS).whereEqualTo("host", userID).limit(1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                                    db.collection(GROUP_USERS).document(i.getId())
+                                            .update("members", FieldValue.arrayRemove(x.getUniqueID()))
+                                            .addOnSuccessListener(aVoid -> {
+                                                groupUseradapter.removeData(position);
+                                                Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
+                                            })
+                                            .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show());
+                                }
+                            }
+                        });
+                    }).show();
             return true;
         });
 
@@ -255,33 +263,36 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         if (size == 0 && ViewMode != 1) {
             binding.emptyInvoice.setVisibility(View.VISIBLE);
             binding.emptyInvoice.setText((ViewMode == 2) ? "No exchange!" : "No user in group!");
-        }
-        if (ViewMode == 1) {
-            //Chart mode
-            swap.setVisibility(View.VISIBLE);
-            add.setVisibility(View.GONE);
-            binding.emptyInvoice.setVisibility(View.GONE);
-            binding.exchangeRcv.setVisibility(View.GONE);
-            binding.chart.setVisibility(View.VISIBLE);
-            binding.groupUser.setVisibility(View.GONE);
-        }
+        } else {
+            if (ViewMode == 1) {
+                //Chart mode
+                swap.setVisibility(View.VISIBLE);
+                add.setVisibility(View.GONE);
+                binding.emptyInvoice.setVisibility(View.GONE);
+                binding.exchangeRcv.setVisibility(View.GONE);
+                binding.chart.setVisibility(View.VISIBLE);
+                binding.groupUser.setVisibility(View.GONE);
+            }
 
-        if (ViewMode == 2) {
-            //Personal mode
-            swap.setVisibility(View.VISIBLE);
-            add.setVisibility(View.GONE);
-            binding.exchangeRcv.setVisibility(View.VISIBLE);
-            binding.chart.setVisibility(View.GONE);
-            binding.groupUser.setVisibility(View.GONE);
-        }
+            if (ViewMode == 2) {
+                //Personal mode
+                swap.setVisibility(View.VISIBLE);
+                add.setVisibility(View.GONE);
+                binding.emptyInvoice.setVisibility(View.GONE);
+                binding.exchangeRcv.setVisibility(View.VISIBLE);
+                binding.chart.setVisibility(View.GONE);
+                binding.groupUser.setVisibility(View.GONE);
+            }
 
-        if (ViewMode == 3) {
-            //Group mode
-            swap.setVisibility(View.GONE);
-            add.setVisibility(View.VISIBLE);
-            binding.chart.setVisibility(View.GONE);
-            binding.exchangeRcv.setVisibility(View.GONE);
-            binding.groupUser.setVisibility(View.VISIBLE);
+            if (ViewMode == 3) {
+                //Group mode
+                swap.setVisibility(View.GONE);
+                add.setVisibility(View.VISIBLE);
+                binding.chart.setVisibility(View.GONE);
+                binding.emptyInvoice.setVisibility(View.GONE);
+                binding.exchangeRcv.setVisibility(View.GONE);
+                binding.groupUser.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -420,29 +431,20 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         });
 
         db.collection(GROUP_USERS).whereEqualTo("host", user.getUid()).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (queryDocumentSnapshots.size()==0) {
-                            updateData.clear();
-                            updateData.put("host", user.getUid());
-                            updateData.put("members", new ArrayList<>());
-                            updateData.put("name", "My group");
-                            db.collection(GROUP_USERS).document().set(updateData)
-                                .addOnSuccessListener(v -> {})
-                                .addOnFailureListener(v -> {
-                                    Toast.makeText(getApplicationContext(), "Create group failed!", Toast.LENGTH_LONG).show();
-                                });
-                        }
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.size()==0) {
+                        updateData.clear();
+                        updateData.put("host", user.getUid());
+                        updateData.put("members", new ArrayList<>());
+                        updateData.put("name", "My group");
+                        db.collection(GROUP_USERS).document().set(updateData)
+                            .addOnSuccessListener(v -> {})
+                            .addOnFailureListener(v -> {
+                                Toast.makeText(getApplicationContext(), "Create group failed!", Toast.LENGTH_LONG).show();
+                            });
                     }
                 });
     }
-
-//    private void CreateGroup() {
-//        FragmentManager fm              = getSupportFragmentManager();
-//        CreateGroupDialog customDialog  = new CreateGroupDialog();
-//        customDialog.show(fm, "");
-//    }
 
     private void AddUsertoGroup() {
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -451,41 +453,35 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         TextInputLayout user_id = v.findViewById(R.id.pin_authen);
         builder.setView(v);
         builder.setCancelable(true)
-            .setPositiveButton("Add", (dialog, which) ->
+            .setPositiveButton("Add", (dialog, which) -> {
+                if (user_id.getEditText().getText().toString().equals(userID)) {
+                    Toast.makeText(getApplicationContext(), "You can't add yourself to this group!", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 db.collection(USERS).whereEqualTo("uniqueID", user_id.getEditText().getText().toString())
-                    .limit(1).get()
-                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                        if (queryDocumentSnapshots.size() == 0) {
-                            Toast.makeText(getApplicationContext(), "User is not exited!", Toast.LENGTH_LONG).show();
-                        } else {
-                            //Check if user is in another gr yet?
-                            db.collection(GROUP_USERS).whereArrayContains("members", user_id.getEditText().getText().toString()).get()
-                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                            if (queryDocumentSnapshots.size()>0) {
-                                                Toast.makeText(getApplicationContext(), "This user is in another group", Toast.LENGTH_LONG).show();
-                                                return;
-                                            }
-                                            //If user didn't in another group
-                                            db.collection(GROUP_USERS).document(grID)
-                                                .update("members", FieldValue.arrayUnion(user_id.getEditText().getText().toString()))
+                        .limit(1).get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            if (queryDocumentSnapshots.size() == 0) {
+                                Toast.makeText(getApplicationContext(), "User is not exited!", Toast.LENGTH_LONG).show();
+                            } else {
+                                db.collection(GROUP_USERS).whereEqualTo("host", userID).limit(1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                        for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                                            db.collection(GROUP_USERS).document(i.getId()).update("members", FieldValue.arrayUnion(user_id.getEditText().getText().toString()))
                                                 .addOnSuccessListener(aVoid -> {
                                                     GroupUserView();
                                                     Toast.makeText(getApplicationContext(), "Added", Toast.LENGTH_LONG).show();
                                                 })
                                                 .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Add failed!", Toast.LENGTH_LONG).show());
                                         }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(getApplicationContext(), "Check failed!", Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                        }
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Fail to get user", Toast.LENGTH_LONG).show()))
+                                    }
+                                });
+
+                            }
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Fail to get user", Toast.LENGTH_LONG).show());
+            })
             .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -502,80 +498,36 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         progressDialog.setMessage("Waiting...");
         progressDialog.show();
 
-        db.collection(GROUP_USERS).whereEqualTo("host", userID).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                users.clear();
-                for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
-                    GroupUsers x    = i.toObject(GroupUsers.class);
-                    if (x.getMembers().size() == 0) {
-                        ChangeMode(3, 0);
-                        progressDialog.dismiss();
-                        return;
-                    }
-                    for (String f: x.getMembers()) {
-                        db.collection(USERS).whereEqualTo("uniqueID", f).limit(1).get()
-                                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                        progressDialog.dismiss();
-                                        for (QueryDocumentSnapshot g: queryDocumentSnapshots) {
-                                            users.add(g.toObject(User.class));
-                                            if (users.size() == x.getMembers().size()) {
-                                                //Get all users
-                                                groupUseradapter.setData(users);
-                                            }
-                                            ChangeMode(3, users.size());
-                                        }
-                                    }
-                                });
-                    }
-                }
-            }
-        });
-
-
-        db.collection(GROUP_USERS)
-            .whereArrayContains("members", userID)
-            .limit(1)
-            .get()
-            .addOnSuccessListener(queryDocumentSnapshots -> {
-                if (queryDocumentSnapshots.size() == 0) {
-                    add.setVisibility(View.GONE);
-                    ChangeMode(3, 0);
-                    progressDialog.dismiss();
-                    return;
-                }
-                for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
-                    grID            = i.getId();
-                    GroupUsers x    = i.toObject(GroupUsers.class);
-                    sidebar_menu.setTitle(x.getName());
+        db.collection(GROUP_USERS).whereEqualTo("host", userID).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
                     users.clear();
-                    for (String f: x.getMembers()) {
-                        db.collection(USERS).whereEqualTo("uniqueID", f).limit(1).get()
-                            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                @Override
-                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                    progressDialog.dismiss();
-                                    for (QueryDocumentSnapshot g: queryDocumentSnapshots) {
-                                        users.add(g.toObject(User.class));
-                                        if (users.size() == x.getMembers().size()) {
-                                            //Get all users
-                                            groupUseradapter.setData(users);
+                    for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                        GroupUsers x = i.toObject(GroupUsers.class);
+                        if (x.getMembers().size() == 0) {
+                            progressDialog.dismiss();
+                            ChangeMode(3, users.size());
+                            return;
+                        }
+                        for (String f: x.getMembers()) {
+                            db.collection(USERS).whereEqualTo("uniqueID", f).limit(1).get()
+                                    .addOnSuccessListener(queryDocumentSnapshots1 -> {
+                                        for (QueryDocumentSnapshot g: queryDocumentSnapshots1) {
+                                            users.add(g.toObject(User.class));
                                         }
+                                        groupUseradapter.setData(users);
+                                        progressDialog.dismiss();
                                         ChangeMode(3, users.size());
-                                    }
-                                }
                             })
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(getApplicationContext(), "Fetch firestore failed!", Toast.LENGTH_LONG).show();
+                                    progressDialog.dismiss();
+                                    Toast.makeText(getApplicationContext(), "Get user group failed", Toast.LENGTH_LONG).show();
                                 }
                             });
-                    }
                 }
-            });
+            }
+        });
     }
 
     private void GetInvoiceData() {
