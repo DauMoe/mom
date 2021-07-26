@@ -49,6 +49,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -70,6 +71,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -88,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     String displayName, displayEmail, userID, preDateState;
     Uri avaUrl;
     TextView dpEmail, dpUser;
+    ChipGroup filter_time;
     ProgressDialog progressDialog;
     ImageView ava;
     Gson gson = new Gson();
@@ -95,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     GroupUserAdapter groupUseradapter;
     List<User> users = new ArrayList<>();
     View add, swap;
-    String grID;
     HashMap<String, Object> updateData = new HashMap<>();
     LineChart lineChart;
     boolean fab_clicked = false;
@@ -121,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         sidebar                     = binding.sidebar;
         navagationview              = binding.navagationview;
         signout                     = binding.signout;
+        filter_time                 = binding.filterTime;
         user                        = FirebaseAuth.getInstance().getCurrentUser();
         db                          = FirebaseFirestore.getInstance();
         userID                      = user.getUid();
@@ -142,12 +146,18 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         binding.exchangeRcv.setAdapter(adapter);
 
         //Init Data
-        DrawLineChart();
+        Calendar h  = Calendar.getInstance();
+        currentTime = h.getTimeInMillis();
+        h.add(Calendar.MONTH, -1);
+        pastTime    = h.getTime().getTime();
+        DrawLineChart(pastTime, currentTime);
 
         //Check User existed
         CheckUserExisted();
         initAnimation();
     }
+
+    Long currentTime, pastTime;
 
     @Override
     protected void onStart() {
@@ -159,10 +169,34 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         add.setOnClickListener(v -> AddUsertoGroup());
         swap.setOnClickListener(v -> {
             if (CurrentViewMode == 1) {
-                GetInvoiceData();
+                GetInvoiceData(pastTime, currentTime);
             } else {
-                DrawLineChart();
+                DrawLineChart(pastTime, currentTime);
             }
+        });
+        filter_time.setOnCheckedChangeListener((group, checkedId) -> {
+            Calendar c  = Calendar.getInstance();
+            currentTime = c.getTimeInMillis();
+            switch (checkedId) {
+                case R.id.filter_onemonth:
+                    c.add(Calendar.MONTH, -1);
+                    pastTime = c.getTime().getTime();
+                    break;
+                case R.id.filter_twomonth:
+                    c.add(Calendar.MONTH, -2);
+                    pastTime = c.getTime().getTime();
+                    break;
+                case R.id.filter_oneyear:
+                    c.add(Calendar.MONTH, -12);
+                    pastTime = c.getTime().getTime();
+                    break;
+                case R.id.filter_twoyear:
+                    c.add(Calendar.MONTH, -24);
+                    pastTime = c.getTime().getTime();
+                    break;
+            }
+            if (CurrentViewMode == 1) DrawLineChart(pastTime, currentTime);
+            if (CurrentViewMode == 2 || CurrentViewMode == 3) GetInvoiceData(pastTime, currentTime);
         });
         mainFAB.setOnClickListener(v -> {
             fab_clicked = !fab_clicked;
@@ -192,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     break;
                 case R.id.exchange_history:
                     item.setChecked(true);
-                    GetInvoiceData();
+                    GetInvoiceData(pastTime, currentTime);
                     break;
                 case R.id.group_history:
                     item.setChecked(true);
@@ -303,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         to_top = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.translate_to_top);
     }
 
-    private void DrawLineChart() {
+    private void DrawLineChart(Long from, Long to) {
         ChangeMode(1, 1);
         progressDialog.setMessage("Getting data....");
         progressDialog.show();
@@ -316,7 +350,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 }
             }
         });
-        db.collection(PAYMENT_EVENTS).whereEqualTo("uniqueID", userID).get()
+        db.collection(PAYMENT_EVENTS).whereEqualTo("uniqueID", userID)
+                .whereGreaterThan("time", from)
+                .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -539,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         });
     }
 
-    private void GetInvoiceData() {
+    private void GetInvoiceData(Long from, Long to) {
         progressDialog.setMessage("Waiting...");
         progressDialog.show();
         db.collection(USERS)
@@ -558,6 +594,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             });
         db.collection(PAYMENT_EVENTS)
             .whereEqualTo("uniqueID", userID)
+            .whereGreaterThan("time", from)
             .get()
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {

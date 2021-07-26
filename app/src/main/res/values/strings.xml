@@ -28,4 +28,12 @@
     <string name="paid_time">Paid on:</string>
     <string name="paid_amount">Amount:</string>
     <string name="paid_note">Note:</string>
+
+    <!-- Chips -->
+    <string name="filter_today">Today</string>
+    <string name="filter_onemonth">1M</string>
+    <string name="filter_twomonth">2M</string>
+    <string name="filter_sixmonth">6M</string>
+    <string name="filter_oneyear">1Y</string>
+    <string name="filter_twoyear">2Y</string>
 </resources>
