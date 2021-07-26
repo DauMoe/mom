@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     break;
             }
             if (CurrentViewMode == 1) DrawLineChart(pastTime, currentTime);
-            if (CurrentViewMode == 2 || CurrentViewMode == 3) GetInvoiceData(pastTime, currentTime);
+            if (CurrentViewMode == 2) GetInvoiceData(pastTime, currentTime);
         });
         mainFAB.setOnClickListener(v -> {
             fab_clicked = !fab_clicked;
