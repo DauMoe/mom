@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,12 +22,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.mom.Adapter.CreateGroupDialog;
 import com.example.mom.Adapter.ExchangeAdapter;
 import com.example.mom.Adapter.GroupUserAdapter;
 import com.example.mom.Login.AccLoginActivity;
@@ -43,10 +40,8 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.ChipGroup;
@@ -54,25 +49,18 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.common.collect.ImmutableList;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -146,10 +134,10 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         binding.exchangeRcv.setAdapter(adapter);
 
         //Init Data
-        Calendar h  = Calendar.getInstance();
-        currentTime = h.getTimeInMillis();
+        Calendar h                  = Calendar.getInstance();
+        currentTime                 = h.getTimeInMillis();
         h.add(Calendar.MONTH, -1);
-        pastTime    = h.getTime().getTime();
+        pastTime                    = h.getTime().getTime();
         DrawLineChart(pastTime, currentTime);
 
         //Check User existed
@@ -232,6 +220,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     item.setChecked(true);
                     GroupUserView();
                     break;
+                case R.id.manager_cates:
+                    startActivity(new Intent(MainActivity.this, AddCateActivity.class));
+                    break;
                 case R.id.change_pins:
                     item.setChecked(true);
                     startActivity(new Intent(MainActivity.this, Change_pinActivity.class));
@@ -261,18 +252,15 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     .setMessage("Remove "+x.getEmail()+"?")
                     .setNegativeButton("Cancel", null)
                     .setPositiveButton("Remove", (dialog, which) -> {
-                        db.collection(GROUP_USERS).whereEqualTo("host", userID).limit(1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                            @Override
-                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
-                                    db.collection(GROUP_USERS).document(i.getId())
-                                            .update("members", FieldValue.arrayRemove(x.getUniqueID()))
-                                            .addOnSuccessListener(aVoid -> {
-                                                groupUseradapter.removeData(position);
-                                                Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
-                                            })
-                                            .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show());
-                                }
+                        db.collection(GROUP_USERS).whereEqualTo("host", userID).limit(1).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                            for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                                db.collection(GROUP_USERS).document(i.getId())
+                                        .update("members", FieldValue.arrayRemove(x.getUniqueID()))
+                                        .addOnSuccessListener(aVoid -> {
+                                            groupUseradapter.removeData(position);
+                                            Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_LONG).show();
+                                        })
+                                        .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Delete failed!", Toast.LENGTH_LONG).show());
                             }
                         });
                     }).show();
@@ -288,8 +276,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
             intentIntegrator.setCaptureActivity(Capture.class);
             intentIntegrator.initiateScan();
         });
-
-
     }
 
     private void ChangeMode(int ViewMode, int size) {
@@ -341,113 +327,107 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         ChangeMode(1, 1);
         progressDialog.setMessage("Getting data....");
         progressDialog.show();
-        db.collection(USERS).whereEqualTo("uniqueID", userID).limit(1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
-                    User f = i.toObject(User.class);
-                    sidebar_menu.setTitle((f.getAmount() + " "+ f.getUnit()));
-                }
+        db.collection(USERS).whereEqualTo("uniqueID", userID).limit(1).get().addOnSuccessListener(queryDocumentSnapshots -> {
+            for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                User f = i.toObject(User.class);
+                sidebar_menu.setTitle((f.getAmount() + " "+ f.getUnit()));
             }
         });
         db.collection(PAYMENT_EVENTS).whereEqualTo("uniqueID", userID)
                 .whereGreaterThan("time", from)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        progressDialog.dismiss();
-                        earnings.clear();
-                        consuming.clear();
-                        dateData.clear();
-                        data.clear();
-                        dataSets.clear();
-                        for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
-                            Events c = i.toObject(Events.class);
-                            data.add(c);
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    progressDialog.dismiss();
+                    earnings.clear();
+                    consuming.clear();
+                    dateData.clear();
+                    data.clear();
+                    dataSets.clear();
+                    for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
+                        Events c = i.toObject(Events.class);
+                        data.add(c);
+                    }
+                    if (data.size() == 0) return;
+                    Collections.sort(data); // from least to greatest
+                    preDateState = DateFormatter(data.get(0).getTime());
+                    dateData.add(DateFormatter(data.get(0).getTime()));
+                    for (Events i: data) {
+                        //Get unique date array
+                        if (!DateFormatter(i.getTime()).equals(preDateState)) {
+                            preDateState = DateFormatter(i.getTime());
+                            dateData.add(DateFormatter(i.getTime()));
                         }
-                        if (data.size() == 0) return;
-                        Collections.sort(data); // from least to greatest
-                        preDateState = DateFormatter(data.get(0).getTime());
-                        dateData.add(DateFormatter(data.get(0).getTime()));
-                        for (Events i: data) {
-                            //Get unique date array
-                            if (!DateFormatter(i.getTime()).equals(preDateState)) {
-                                preDateState = DateFormatter(i.getTime());
-                                dateData.add(DateFormatter(i.getTime()));
+                    }
+                    EarningsAmountTemp = 0L;
+                    ConsumingAmountTemp = 0L;
+                    preDateState = DateFormatter(data.get(0).getTime());
+                    for (Events i: data) {
+                        if (DateFormatter(i.getTime()).equals(preDateState)){
+                            if (i.isEarning()) EarningsAmountTemp += i.getAmount();
+                            else ConsumingAmountTemp += i.getAmount();
+                        } else {
+                            if (EarningsAmountTemp > 0) {
+                                earnings.add(new Entry((int)dateData.indexOf(preDateState), EarningsAmountTemp));
                             }
-                        }
-                        EarningsAmountTemp = 0L;
-                        ConsumingAmountTemp = 0L;
-                        preDateState = DateFormatter(data.get(0).getTime());
-                        for (Events i: data) {
-                            if (DateFormatter(i.getTime()).equals(preDateState)){
-                                if (i.isEarning()) EarningsAmountTemp += i.getAmount();
-                                else ConsumingAmountTemp += i.getAmount();
-                            } else {
-                                if (EarningsAmountTemp > 0) {
-                                    earnings.add(new Entry((int)dateData.indexOf(preDateState), EarningsAmountTemp));
-                                }
-                                if (ConsumingAmountTemp > 0) {
-                                    consuming.add(new Entry((int)dateData.indexOf(preDateState), ConsumingAmountTemp));
-                                }
-                                if (i.isEarning()) {
-                                    EarningsAmountTemp = i.getAmount();
-                                    ConsumingAmountTemp = 0L;
-                                }
-                                else {
-                                    ConsumingAmountTemp = i.getAmount();
-                                    EarningsAmountTemp = 0L;
-                                }
-                                preDateState = DateFormatter(i.getTime());
+                            if (ConsumingAmountTemp > 0) {
+                                consuming.add(new Entry((int)dateData.indexOf(preDateState), ConsumingAmountTemp));
                             }
+                            if (i.isEarning()) {
+                                EarningsAmountTemp = i.getAmount();
+                                ConsumingAmountTemp = 0L;
+                            }
+                            else {
+                                ConsumingAmountTemp = i.getAmount();
+                                EarningsAmountTemp = 0L;
+                            }
+                            preDateState = DateFormatter(i.getTime());
                         }
-                        earnings.add(new Entry(dateData.indexOf(preDateState), EarningsAmountTemp));
-                        consuming.add(new Entry(dateData.indexOf(preDateState), ConsumingAmountTemp));
+                    }
+                    earnings.add(new Entry(dateData.indexOf(preDateState), EarningsAmountTemp));
+                    consuming.add(new Entry(dateData.indexOf(preDateState), ConsumingAmountTemp));
 
-                        set1 = new LineDataSet(earnings, "Earnings");
-                        set1.setColor(Color.rgb(31, 236, 180));
-                        set1.setValueTextColor(Color.rgb(7, 169, 125));
-                        set1.setValueTextSize(10f);
-                        set1.setMode(LineDataSet.Mode.LINEAR);
-                        dataSets.add(set1);
+                    set1 = new LineDataSet(earnings, "Earnings");
+                    set1.setColor(Color.rgb(31, 236, 180));
+                    set1.setValueTextColor(Color.rgb(7, 169, 125));
+                    set1.setValueTextSize(10f);
+                    set1.setMode(LineDataSet.Mode.LINEAR);
+                    dataSets.add(set1);
 
-                        set2 = new LineDataSet(consuming, "Consuming");
-                        set2.setColor(Color.rgb(236, 68, 31));
-                        set2.setValueTextColor(Color.rgb(160, 5, 10));
-                        set2.setValueTextSize(10f);
-                        set2.setMode(LineDataSet.Mode.LINEAR);
-                        dataSets.add(set2);
+                    set2 = new LineDataSet(consuming, "Consuming");
+                    set2.setColor(Color.rgb(236, 68, 31));
+                    set2.setValueTextColor(Color.rgb(160, 5, 10));
+                    set2.setValueTextSize(10f);
+                    set2.setMode(LineDataSet.Mode.LINEAR);
+                    dataSets.add(set2);
 
-                        YAxis rightYAxis = lineChart.getAxisRight();
-                        rightYAxis.setEnabled(false);
-                        YAxis leftYAxis = lineChart.getAxisLeft();
-                        leftYAxis.setEnabled(false);
-                        XAxis topXAxis = lineChart.getXAxis();
-                        topXAxis.setEnabled(false);
+                    YAxis rightYAxis = lineChart.getAxisRight();
+                    rightYAxis.setEnabled(false);
+                    YAxis leftYAxis = lineChart.getAxisLeft();
+                    leftYAxis.setEnabled(false);
+                    XAxis topXAxis = lineChart.getXAxis();
+                    topXAxis.setEnabled(false);
 
-                        XAxis xAxis = lineChart.getXAxis();
+                    XAxis xAxis = lineChart.getXAxis();
 //                        xAxis.setGranularity(1f);
 //                        xAxis.setCenterAxisLabels(true);
-                        xAxis.setEnabled(true);
+                    xAxis.setEnabled(true);
 //                        xAxis.setDrawGridLines(false);
-                        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                    xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
-                        set1.setLineWidth(2f);
-                        set2.setLineWidth(2f);
+                    set1.setLineWidth(2f);
+                    set2.setLineWidth(2f);
 //                      set1.setCircleRadius(3f);
 //                      set1.setDrawValues(false);
 
-                        //String setter in x-Axis
-                        lineChart.getXAxis().setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(dateData));
+                    //String setter in x-Axis
+                    lineChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(dateData));
 
-                        LineData data = new LineData(dataSets);
-                        lineChart.setData(data);
-                        lineChart.animateX(2000);
-                        lineChart.invalidate();
-                        lineChart.getLegend().setEnabled(true);
-                        lineChart.getDescription().setText("Date");
-                    }
+                    LineData data = new LineData(dataSets);
+                    lineChart.setData(data);
+                    lineChart.animateX(2000);
+                    lineChart.invalidate();
+                    lineChart.getLegend().setEnabled(true);
+                    lineChart.getDescription().setText("Date");
                 });
     }
 
@@ -509,17 +489,14 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                             if (queryDocumentSnapshots.size() == 0) {
                                 Toast.makeText(getApplicationContext(), "User is not exited!", Toast.LENGTH_LONG).show();
                             } else {
-                                db.collection(GROUP_USERS).whereEqualTo("host", userID).limit(1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                        for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
-                                            db.collection(GROUP_USERS).document(i.getId()).update("members", FieldValue.arrayUnion(user_id.getEditText().getText().toString()))
-                                                .addOnSuccessListener(aVoid -> {
-                                                    GroupUserView();
-                                                    Toast.makeText(getApplicationContext(), "Added", Toast.LENGTH_LONG).show();
-                                                })
-                                                .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Add failed!", Toast.LENGTH_LONG).show());
-                                        }
+                                db.collection(GROUP_USERS).whereEqualTo("host", userID).limit(1).get().addOnSuccessListener(queryDocumentSnapshots1 -> {
+                                    for (QueryDocumentSnapshot i: queryDocumentSnapshots1) {
+                                        db.collection(GROUP_USERS).document(i.getId()).update("members", FieldValue.arrayUnion(user_id.getEditText().getText().toString()))
+                                            .addOnSuccessListener(aVoid -> {
+                                                GroupUserView();
+                                                Toast.makeText(getApplicationContext(), "Added", Toast.LENGTH_LONG).show();
+                                            })
+                                            .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Add failed!", Toast.LENGTH_LONG).show());
                                     }
                                 });
 
@@ -563,12 +540,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                                         progressDialog.dismiss();
                                         ChangeMode(3, users.size());
                             })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    progressDialog.dismiss();
-                                    Toast.makeText(getApplicationContext(), "Get user group failed", Toast.LENGTH_LONG).show();
-                                }
+                            .addOnFailureListener(e -> {
+                                progressDialog.dismiss();
+                                Toast.makeText(getApplicationContext(), "Get user group failed", Toast.LENGTH_LONG).show();
                             });
                 }
             }

@@ -36,4 +36,8 @@
     <string name="filter_sixmonth">6M</string>
     <string name="filter_oneyear">1Y</string>
     <string name="filter_twoyear">2Y</string>
+
+    <!-- Cate -->
+    <string name="earnings_cate">Earnings</string>
+    <string name="consuming_cate">Consuming</string>
 </resources>

@@ -28,6 +28,10 @@
                 android:id="@+id/group_history"
                 android:icon="@drawable/ic_chart"
                 android:title="Group"/>
+        <item
+            android:id="@+id/manager_cates"
+            android:icon="@drawable/ic_cate"
+            android:title="Categories"/>
 
     </group>
 
