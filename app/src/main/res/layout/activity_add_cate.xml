@@ -14,8 +14,8 @@
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/filter_time"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -33,12 +33,12 @@
                 android:text="@string/earnings_cate"/>
             <com.google.android.material.chip.Chip
                 android:id="@+id/consuming_addcate"
+                android:layout_marginLeft="20dp"
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/consuming_cate"/>
         </com.google.android.material.chip.ChipGroup>
-            android:layout_height="0dp"/>
 
         <GridView
             android:id="@+id/cate_rcv"
@@ -53,7 +53,10 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_cate_fab"
-            app:fabSize="normal"
+            app:fabSize="mini"
+            android:src="@drawable/ic_plus"
+            app:backgroundTint="#FF9800"
+            app:tint="@color/white"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_margin="20dp"

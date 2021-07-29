@@ -152,6 +152,7 @@ public class AddInvoiceActivity extends AppCompatActivity {
                                             updateData.put("from", "User");
                                             updateData.put("amount", amount);
                                             updateData.put("billID", GenBillID("HA"));
+                                            updateData.put("note", binding.addNote.getEditText().getText().toString());
                                             updateData.put("cate", binding.consumingCateItem.getText().toString());
                                             db.collection(PAYMENT_EVENTS).document().set(updateData);
                                             progressDialog.dismiss();

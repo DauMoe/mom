@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
@@ -280,14 +281,25 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
     private void ChangeMode(int ViewMode, int size) {
         CurrentViewMode = ViewMode;
-        if (size == 0 && ViewMode != 1) {
+        Log.i("MODE", String.valueOf(CurrentViewMode));
+        if (ViewMode == 1 || ViewMode == 2) {
+            binding.filterTime.setVisibility(View.VISIBLE);
+            swap.setVisibility(View.VISIBLE);
+            add.setVisibility(View.GONE);
+        } else {
+            binding.filterTime.setVisibility(View.GONE);
+            swap.setVisibility(View.GONE);
+            add.setVisibility(View.VISIBLE);
+        }
+        if (size == 0) {
             binding.emptyInvoice.setVisibility(View.VISIBLE);
-            binding.emptyInvoice.setText((ViewMode == 2) ? "No exchange!" : "No user in group!");
+            binding.emptyInvoice.setText((ViewMode == 1 || ViewMode == 2) ? "No exchange!" : "No user in group!");
+            binding.exchangeRcv.setVisibility(View.GONE);
+            binding.chart.setVisibility(View.GONE);
+            binding.groupUser.setVisibility(View.GONE);
         } else {
             if (ViewMode == 1) {
                 //Chart mode
-                swap.setVisibility(View.VISIBLE);
-                add.setVisibility(View.GONE);
                 binding.emptyInvoice.setVisibility(View.GONE);
                 binding.exchangeRcv.setVisibility(View.GONE);
                 binding.chart.setVisibility(View.VISIBLE);
@@ -296,8 +308,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
             if (ViewMode == 2) {
                 //Personal mode
-                swap.setVisibility(View.VISIBLE);
-                add.setVisibility(View.GONE);
                 binding.emptyInvoice.setVisibility(View.GONE);
                 binding.exchangeRcv.setVisibility(View.VISIBLE);
                 binding.chart.setVisibility(View.GONE);
@@ -306,8 +316,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
 
             if (ViewMode == 3) {
                 //Group mode
-                swap.setVisibility(View.GONE);
-                add.setVisibility(View.VISIBLE);
                 binding.chart.setVisibility(View.GONE);
                 binding.emptyInvoice.setVisibility(View.GONE);
                 binding.exchangeRcv.setVisibility(View.GONE);
@@ -599,7 +607,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 Toast.makeText(getApplicationContext(), "This is not MoM QR!", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "This is not MoM QR!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Can not scan QR code!", Toast.LENGTH_LONG).show();
         }
     }
 

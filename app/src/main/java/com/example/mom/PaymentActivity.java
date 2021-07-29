@@ -159,6 +159,7 @@ public class PaymentActivity extends AppCompatActivity {
                                         updateData.put("from", payment.getFrom());
                                         updateData.put("amount", amount);
                                         updateData.put("billID", GenBillID("QR"));
+                                        updateData.put("note", "From QR code!");
                                         db.collection(PAYMENT_EVENTS).document().set(updateData);
                                         //Payment done
                                         startActivity(new Intent(PaymentActivity.this, MainActivity.class));

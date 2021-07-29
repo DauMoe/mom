@@ -98,7 +98,7 @@
                 android:id="@+id/group_user"
                 android:visibility="gone"
                 android:numColumns="2"
-                android:layout_marginTop="135dp"
+                android:layout_marginTop="95dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:stretchMode="columnWidth"
