@@ -36,11 +36,11 @@ public class LoadingActivity extends AppCompatActivity {
             super.run();
             FirebaseUser auth = getInstance().getCurrentUser();
             //Start new thread to check login state
-//            try {
-//                Thread.sleep(DefineVars.LOADING_TIME);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                Thread.sleep(DefineVars.LOADING_TIME);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             if (auth == null) {
                 startActivity(new Intent(LoadingActivity.this, AccLoginActivity.class));
             } else {

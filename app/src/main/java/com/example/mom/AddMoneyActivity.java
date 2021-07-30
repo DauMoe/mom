@@ -118,7 +118,7 @@ public class AddMoneyActivity extends AppCompatActivity {
 
     private void AuthenWithPassword() {
         FragmentManager fm          = getSupportFragmentManager();
-        CustomDialog customDialog   = new CustomDialog(Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())), user.getUid(), true, binding.earningsCateItem.getText().toString());
+        CustomDialog customDialog   = new CustomDialog(Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())), user.getUid(), true, binding.earningsCateItem.getText().toString(), binding.rechangeNote.getEditText().getText().toString());
         customDialog.show(fm, "");
     }
 
@@ -146,6 +146,7 @@ public class AddMoneyActivity extends AppCompatActivity {
                                 updateData.put("amount", Long.valueOf(String.valueOf(binding.rechangeAmount.getEditText().getText())));
                                 updateData.put("billID", GenBillID("IN"));
                                 updateData.put("cate", binding.earningsCateItem.getText().toString());
+                                updateData.put("note", binding.rechangeNote.getEditText().getText().toString());
                                 db.collection(PAYMENT_EVENTS).document().set(updateData);
                                 //Payment done
                                 Toast.makeText(getApplicationContext(), "Update amount successful!", Toast.LENGTH_LONG).show();

@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Pair;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -46,6 +47,8 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -66,6 +69,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.example.mom.DefineVars.*;
+import static java.util.Calendar.MONTH;
 
 public class MainActivity extends AppCompatActivity implements DrawerLayout.DrawerListener {
     private ActivityMainBinding binding;
@@ -87,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     ExchangeAdapter adapter;
     GroupUserAdapter groupUseradapter;
     List<User> users = new ArrayList<>();
-    View add, swap;
+    View add, swap, filter;
     HashMap<String, Object> updateData = new HashMap<>();
     LineChart lineChart;
     boolean fab_clicked = false;
@@ -113,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         sidebar                     = binding.sidebar;
         navagationview              = binding.navagationview;
         signout                     = binding.signout;
-        filter_time                 = binding.filterTime;
+//        filter_time                 = binding.filterTime;
         user                        = FirebaseAuth.getInstance().getCurrentUser();
         db                          = FirebaseFirestore.getInstance();
         userID                      = user.getUid();
@@ -124,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         progressDialog              = new ProgressDialog(this);
         add                         = findViewById(R.id.add_gr);
         swap                        = findViewById(R.id.swap_view);
+        filter                      = findViewById(R.id.filter_exchange);
         lineChart                   = binding.chart;
         sidebar.setDrawerListener(this);
         binding.groupUser.setAdapter(groupUseradapter);
@@ -137,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         //Init Data
         Calendar h                  = Calendar.getInstance();
         currentTime                 = h.getTimeInMillis();
-        h.add(Calendar.MONTH, -1);
+        h.add(MONTH, -1);
         pastTime                    = h.getTime().getTime();
         DrawLineChart(pastTime, currentTime);
 
@@ -156,6 +161,19 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         sidebar_menu.setNavigationOnClickListener(v -> sidebar.open());
         signout.setOnClickListener(v -> SignOut());
         add.setOnClickListener(v -> AddUsertoGroup());
+        filter.setOnClickListener(v -> {
+            MaterialDatePicker.Builder<Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker();
+            Calendar now = Calendar.getInstance();
+            builder.setSelection(new Pair<> (now.getTimeInMillis(), now.getTimeInMillis()));
+            MaterialDatePicker<Pair<Long, Long>> picker = builder.build();
+            picker.show(getSupportFragmentManager(), picker.toString());
+            picker.addOnNegativeButtonClickListener(v1 -> picker.dismiss());
+            picker.addOnPositiveButtonClickListener(selection -> {
+//                Log.i("RANGE: ", selection.first + " to "+selection.second);
+                if (CurrentViewMode == 1) DrawLineChart(selection.first, selection.second);
+                if (CurrentViewMode == 2) GetInvoiceData(selection.first, selection.second);
+            });
+        });
         swap.setOnClickListener(v -> {
             if (CurrentViewMode == 1) {
                 GetInvoiceData(pastTime, currentTime);
@@ -163,30 +181,30 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                 DrawLineChart(pastTime, currentTime);
             }
         });
-        filter_time.setOnCheckedChangeListener((group, checkedId) -> {
-            Calendar c  = Calendar.getInstance();
-            currentTime = c.getTimeInMillis();
-            switch (checkedId) {
-                case R.id.filter_onemonth:
-                    c.add(Calendar.MONTH, -1);
-                    pastTime = c.getTime().getTime();
-                    break;
-                case R.id.filter_twomonth:
-                    c.add(Calendar.MONTH, -2);
-                    pastTime = c.getTime().getTime();
-                    break;
-                case R.id.filter_oneyear:
-                    c.add(Calendar.MONTH, -12);
-                    pastTime = c.getTime().getTime();
-                    break;
-                case R.id.filter_twoyear:
-                    c.add(Calendar.MONTH, -24);
-                    pastTime = c.getTime().getTime();
-                    break;
-            }
-            if (CurrentViewMode == 1) DrawLineChart(pastTime, currentTime);
-            if (CurrentViewMode == 2) GetInvoiceData(pastTime, currentTime);
-        });
+//        filter_time.setOnCheckedChangeListener((group, checkedId) -> {
+//            Calendar c  = Calendar.getInstance();
+//            currentTime = c.getTimeInMillis();
+//            switch (checkedId) {
+//                case R.id.filter_onemonth:
+//                    c.add(MONTH, -1);
+//                    pastTime = c.getTime().getTime();
+//                    break;
+//                case R.id.filter_twomonth:
+//                    c.add(MONTH, -2);
+//                    pastTime = c.getTime().getTime();
+//                    break;
+//                case R.id.filter_oneyear:
+//                    c.add(MONTH, -12);
+//                    pastTime = c.getTime().getTime();
+//                    break;
+//                case R.id.filter_twoyear:
+//                    c.add(MONTH, -24);
+//                    pastTime = c.getTime().getTime();
+//                    break;
+//            }
+//            if (CurrentViewMode == 1) DrawLineChart(pastTime, currentTime);
+//            if (CurrentViewMode == 2) GetInvoiceData(pastTime, currentTime);
+//        });
         mainFAB.setOnClickListener(v -> {
             fab_clicked = !fab_clicked;
             if (fab_clicked) {
@@ -283,13 +301,17 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         CurrentViewMode = ViewMode;
         Log.i("MODE", String.valueOf(CurrentViewMode));
         if (ViewMode == 1 || ViewMode == 2) {
-            binding.filterTime.setVisibility(View.VISIBLE);
+//            binding.filterTime.setVisibility(View.VISIBLE);
             swap.setVisibility(View.VISIBLE);
+            filter.setVisibility(View.VISIBLE);
             add.setVisibility(View.GONE);
+            mainFAB.setVisibility(View.VISIBLE);
         } else {
-            binding.filterTime.setVisibility(View.GONE);
+//            binding.filterTime.setVisibility(View.GONE);
             swap.setVisibility(View.GONE);
+            filter.setVisibility(View.GONE);
             add.setVisibility(View.VISIBLE);
+            mainFAB.setVisibility(View.GONE);
         }
         if (size == 0) {
             binding.emptyInvoice.setVisibility(View.VISIBLE);
@@ -343,6 +365,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         });
         db.collection(PAYMENT_EVENTS).whereEqualTo("uniqueID", userID)
                 .whereGreaterThan("time", from)
+                .whereLessThanOrEqualTo("time", to)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     progressDialog.dismiss();
@@ -397,14 +420,14 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     set1 = new LineDataSet(earnings, "Earnings");
                     set1.setColor(Color.rgb(31, 236, 180));
                     set1.setValueTextColor(Color.rgb(7, 169, 125));
-                    set1.setValueTextSize(10f);
+                    set1.setValueTextSize(16f);
                     set1.setMode(LineDataSet.Mode.LINEAR);
                     dataSets.add(set1);
 
                     set2 = new LineDataSet(consuming, "Consuming");
                     set2.setColor(Color.rgb(236, 68, 31));
                     set2.setValueTextColor(Color.rgb(160, 5, 10));
-                    set2.setValueTextSize(10f);
+                    set2.setValueTextSize(16f);
                     set2.setMode(LineDataSet.Mode.LINEAR);
                     dataSets.add(set2);
 
@@ -577,6 +600,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
         db.collection(PAYMENT_EVENTS)
             .whereEqualTo("uniqueID", userID)
             .whereGreaterThan("time", from)
+            .whereLessThanOrEqualTo("time", to)
             .get()
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {

@@ -58,6 +58,20 @@
                         android:inputType="none" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/rechange_note"
+                    android:layout_marginTop="20dp"
+                    android:hint="@string/note"
+                    app:startIconDrawable="@drawable/ic_edit"
+                    app:boxBackgroundColor="#EDEDED"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/rechange_now"
                     android:layout_marginTop="20dp"

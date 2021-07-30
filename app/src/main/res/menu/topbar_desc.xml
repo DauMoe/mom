@@ -8,6 +8,14 @@
         android:title="Add to group"
         android:contentDescription=""
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/filter_exchange"
+        android:icon="@drawable/ic_calendar"
+        android:title="Filter"
+        android:contentDescription=""
+        app:showAsAction="ifRoom" />
+
     <item
         android:id="@+id/swap_view"
         android:icon="@drawable/ic_swap"

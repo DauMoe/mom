@@ -49,56 +49,56 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/filter_time"
-                app:singleSelection="true"
-                android:textAlignment="center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="88dp">
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/filter_onemonth"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:checked="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/filter_onemonth"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/filter_twomonth"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/filter_twomonth"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/filter_oneyear"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/filter_oneyear"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/filter_twoyear"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/filter_twoyear"/>
-            </com.google.android.material.chip.ChipGroup>
+<!--            <com.google.android.material.chip.ChipGroup-->
+<!--                android:id="@+id/filter_time"-->
+<!--                app:singleSelection="true"-->
+<!--                android:textAlignment="center"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="88dp">-->
+<!--                <com.google.android.material.chip.Chip-->
+<!--                    android:id="@+id/filter_onemonth"-->
+<!--                    style="@style/Widget.MaterialComponents.Chip.Choice"-->
+<!--                    android:checked="true"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="@string/filter_onemonth"/>-->
+<!--                <com.google.android.material.chip.Chip-->
+<!--                    android:id="@+id/filter_twomonth"-->
+<!--                    style="@style/Widget.MaterialComponents.Chip.Choice"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="@string/filter_twomonth"/>-->
+<!--                <com.google.android.material.chip.Chip-->
+<!--                    android:id="@+id/filter_oneyear"-->
+<!--                    style="@style/Widget.MaterialComponents.Chip.Choice"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="@string/filter_oneyear"/>-->
+<!--                <com.google.android.material.chip.Chip-->
+<!--                    android:id="@+id/filter_twoyear"-->
+<!--                    style="@style/Widget.MaterialComponents.Chip.Choice"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="@string/filter_twoyear"/>-->
+<!--            </com.google.android.material.chip.ChipGroup>-->
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart"
-                android:layout_marginTop="130dp"
+                android:layout_marginTop="85dp"
                 android:layout_marginBottom="50dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/exchange_rcv"
                 android:visibility="gone"
-                android:layout_marginTop="135dp"
+                android:layout_marginTop="85dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
             <GridView
                 android:id="@+id/group_user"
                 android:visibility="gone"
                 android:numColumns="2"
-                android:layout_marginTop="95dp"
+                android:layout_marginTop="85dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:stretchMode="columnWidth"

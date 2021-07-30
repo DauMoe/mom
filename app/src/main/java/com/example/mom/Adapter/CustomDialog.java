@@ -44,11 +44,12 @@ public class CustomDialog extends DialogFragment {
     boolean isEarnings;
     String from, pre, note = "", cate = "";
 
-    public CustomDialog(Long RechangeAmount, String uID, Boolean isEarnings, String cate) {
+    public CustomDialog(Long RechangeAmount, String uID, Boolean isEarnings, String cate, String note) {
         this.RechangeAmount     = RechangeAmount;
         this.uniqueID           = uID;
         this.isEarnings         = isEarnings;
         this.cate               = cate;
+        this.note               = note;
     }
 
     public CustomDialog(Long RechangeAmount, String uID, Boolean isEarnings, String from, String prefix, String note, String cate) {

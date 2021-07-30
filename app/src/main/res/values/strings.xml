@@ -18,7 +18,8 @@
     <!-- Paymeny -->
     <string name="payment_amount">Amount</string>
     <string name="password_dialog">Enter your PIN</string>
-    <string name="rechange">Enter amount:</string>
+    <string name="rechange">Enter amount</string>
+    <string name="note">Note</string>
 
     <string name="invite_code">User ID</string>
 
