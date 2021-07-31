@@ -142,7 +142,8 @@ public class PaymentActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot i: task.getResult()) {
                         User x = i.toObject(User.class);
-                        if (Long.valueOf(x.getAmount()) >= Long.valueOf(amount)) {
+//                        if (Long.valueOf(x.getAmount()) >= Long.valueOf(amount)) {
+                        if (true) {
                             long remain_amount = Long.valueOf(x.getAmount()) - Long.valueOf(amount);
                             updateData.clear();
                             updateData.put("amount", remain_amount);

@@ -102,7 +102,8 @@ public class CustomDialog extends DialogFragment {
     }
 
     private void updatePayment(Long currentAmount) {
-        if (currentAmount >= RechangeAmount) {
+//        if (currentAmount >= RechangeAmount) {
+        if (true) {
             updateData.put("amount", (currentAmount-RechangeAmount));
             db.collection(USERS).document(userID).update(updateData)
                     .addOnSuccessListener(aVoid -> {

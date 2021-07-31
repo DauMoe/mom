@@ -420,14 +420,14 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                     set1 = new LineDataSet(earnings, "Earnings");
                     set1.setColor(Color.rgb(31, 236, 180));
                     set1.setValueTextColor(Color.rgb(7, 169, 125));
-                    set1.setValueTextSize(16f);
+                    set1.setValueTextSize(10f);
                     set1.setMode(LineDataSet.Mode.LINEAR);
                     dataSets.add(set1);
 
                     set2 = new LineDataSet(consuming, "Consuming");
                     set2.setColor(Color.rgb(236, 68, 31));
                     set2.setValueTextColor(Color.rgb(160, 5, 10));
-                    set2.setValueTextSize(16f);
+                    set2.setValueTextSize(10f);
                     set2.setMode(LineDataSet.Mode.LINEAR);
                     dataSets.add(set2);
 
