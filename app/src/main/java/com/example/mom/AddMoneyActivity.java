@@ -58,7 +58,9 @@ public class AddMoneyActivity extends AppCompatActivity {
         db                      = FirebaseFirestore.getInstance();
         user                    = FirebaseAuth.getInstance().getCurrentUser();
         list_cate.clear();
-        db.collection(EARNING_CATE).get().addOnSuccessListener(queryDocumentSnapshots -> {
+        db.collection(EARNING_CATE)
+                .whereEqualTo("uniqueID", user.getUid())
+                .get().addOnSuccessListener(queryDocumentSnapshots -> {
             for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
                 list_cate.add(i.getString("name"));
             }
