@@ -87,7 +87,9 @@ public class AddInvoiceActivity extends AppCompatActivity {
                 .setNegativeButtonText("Use PIN")
                 .build();
         list_cate.clear();
-        db.collection(DefineVars.CONSUMING_CATE).get().addOnSuccessListener(queryDocumentSnapshots -> {
+        db.collection(DefineVars.CONSUMING_CATE)
+                .whereEqualTo("uniqueID", user.getUid())
+                .get().addOnSuccessListener(queryDocumentSnapshots -> {
             for (QueryDocumentSnapshot i: queryDocumentSnapshots) {
                 list_cate.add(i.getString("name"));
             }
