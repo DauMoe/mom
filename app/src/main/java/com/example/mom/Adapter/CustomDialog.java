@@ -108,7 +108,6 @@ public class CustomDialog extends DialogFragment {
             db.collection(USERS).document(userID).update(updateData)
                     .addOnSuccessListener(aVoid -> {
                         updateData.clear();
-                        updateData.clear();
                         updateData.put("earning", false);
                         updateData.put("time", Calendar.getInstance().getTimeInMillis());
                         updateData.put("uniqueID", uniqueID);

@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
     String displayName, displayEmail, userID, preDateState;
     Uri avaUrl;
     TextView dpEmail, dpUser;
-    ChipGroup filter_time;
+//    ChipGroup filter_time;
     ProgressDialog progressDialog;
     ImageView ava;
     Gson gson = new Gson();
@@ -530,7 +530,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLayout.Draw
                                             .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Add failed!", Toast.LENGTH_LONG).show());
                                     }
                                 });
-
                             }
                         })
                         .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Fail to get user", Toast.LENGTH_LONG).show());

@@ -102,7 +102,6 @@ public class PhoneLoginActivity extends AppCompatActivity {
                     phoneNum.setError(null);
                     progressDialog.setMessage("Sending OTP...");
                     progressDialog.show();
-                    phoneNum.getEditText().setText("+84"+phone_number.substring(1));
                     CredentialPhoneNumber("+84"+phone_number.substring(1));
 //                    try {
                         //Country code denpend on your device language
