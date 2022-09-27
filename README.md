@@ -1,2 +1,3 @@
-# mom
-Simple, simple money manager!
+# Money Manager (MoM)  
+
+An android app. Builed with Java  
